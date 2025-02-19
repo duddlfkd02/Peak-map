@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@font-face {
+  font-family: "Roboto-VariableFont";
+  src: url("./assets/font/Roboto-VariableFont.woff") format("woff");
+}
+
+:root {
+  --font-Roboto: "Roboto";
+}

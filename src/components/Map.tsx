@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 import useLocation from "../hooks/useLocation";
 
@@ -46,7 +47,7 @@ const Map = () => {
   return (
     <div>
       {error && <p>{error}</p>}
-      <div ref={mapRef} className="w-full h-[500px]"></div>
+      <div ref={mapRef} className="w-full h-screen"></div>
     </div>
   );
 };

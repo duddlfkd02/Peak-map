@@ -27,7 +27,7 @@ const useLocation = () => {
   )
 
   },[])
-  console.log("위치 불러오기 성공",location)
+  // console.log("위치 불러오기 성공",location)
   return{location, error}
 }
 

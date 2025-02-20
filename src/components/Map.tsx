@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useLocation from "../hooks/useLocation";
 import useCompany from "../hooks/useCompany";
 import marker from "../assets/images/marker.svg"
+import Modal from "./common/Modal";
+import { Company } from "../types";
 
 declare global {
   interface Window {
@@ -14,6 +16,7 @@ const Map = () => {
   const { location, error } = useLocation();
   const {companies} = useCompany();
   const mapRef = useRef<HTMLDivElement>(null);
+  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
 
   useEffect(() => {
     if (!location || !mapRef.current) return;
@@ -48,27 +51,48 @@ const Map = () => {
           
 
           // marker 이미지 설정
-        const imageSrc = marker
         const imageSize = new window.kakao.maps.Size(35, 35)
         const imageOption = {offset: new window.kakao.maps.Point(27, 69)}
-        const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize, imageOption)
+        const markerImage = new window.kakao.maps.MarkerImage(marker, imageSize, imageOption)
 
-        new window.kakao.maps.Marker({ position: companyPosition, map,image: markerImage  });
-        })
 
-    
+        const markerInstance = new window.kakao.maps.Marker({
+          position: companyPosition,
+          map,
+          image: markerImage,
+        });
+
+        window.kakao.maps.event.addListener(markerInstance, "click", ()=> {
+          console.log("선택한 기업:", company);
+          setSelectedCompany(company)
+
+          map.panTo(new window.kakao.maps.LatLng(company.latitude, company.longitude))
+        });
+        
       });
-    };
+    });
+  };
 
     document.head.appendChild(script);
   }, [location, companies]);
 
   return (
-    <div>
+    <div className="relative">
       {error && <p>{error}</p>}
-      <div ref={mapRef} className="w-full h-screen"></div>
+
+      <div ref={mapRef} className={`w-full h-screen ${selectedCompany ? "pointer-events-none" : ""}`}></div>
+  
+      {/* 모달이 열릴 때만 렌더링 */}
+      {selectedCompany && (
+        <Modal
+          isOpen={!!selectedCompany}
+          onClose={() => setSelectedCompany(null)}
+          company={selectedCompany}
+        />
+      )}
     </div>
   );
+  
 };
 
 export default Map;

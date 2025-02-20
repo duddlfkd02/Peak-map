@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from "react";
 import useLocation from "../hooks/useLocation";
+import useCompany from "../hooks/useCompany";
+import marker from "../assets/images/marker.svg"
 
 declare global {
   interface Window {
@@ -10,6 +12,7 @@ declare global {
 
 const Map = () => {
   const { location, error } = useLocation();
+  const {companies} = useCompany();
   const mapRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -35,14 +38,30 @@ const Map = () => {
     script.onload = () => {
       window.kakao.maps.load(() => {
         console.log("Kakao 지도 API 로드 완료!");
+
         const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
         const map = new window.kakao.maps.Map(mapRef.current, { center: position, level: 3 });
-        new window.kakao.maps.Marker({ position, map });
+
+        // 기업 리스트 마커 추가
+        companies.forEach((company)=>{
+          const companyPosition = new window.kakao.maps.LatLng(company.latitude, company.longitude);
+          
+
+          // marker 이미지 설정
+        const imageSrc = marker
+        const imageSize = new window.kakao.maps.Size(35, 35)
+        const imageOption = {offset: new window.kakao.maps.Point(27, 69)}
+        const markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize, imageOption)
+
+        new window.kakao.maps.Marker({ position: companyPosition, map,image: markerImage  });
+        })
+
+    
       });
     };
 
     document.head.appendChild(script);
-  }, [location]);
+  }, [location, companies]);
 
   return (
     <div>

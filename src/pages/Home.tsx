@@ -4,7 +4,7 @@ import Map from "../components/Map";
 const Home = () => {
   return (
     <div className="flex h-screen">
-      <div className="w-[300px] overflow-y-auto bg-gray-100 p-4">
+      <div className="w-[500px] overflow-y-auto p-4">
         <CompanyList />
       </div>
       <div className="h-full w-full">

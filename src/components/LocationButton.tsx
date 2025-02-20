@@ -1,5 +1,5 @@
-const LocationButton =  () => {
-return (<div>LocationButton</div>)
-}
+const LocationButton = () => {
+  return <div>LocationButton</div>;
+};
 
-export default LocationButton
+export default LocationButton;

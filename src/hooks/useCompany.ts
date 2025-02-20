@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { mockCompanies } from "../mocks/companies"
-import { Company } from "../types"
+import { mockCompanies } from "../mocks/companies";
+import { Company } from "../types";
 
-const useCompany = ()=>{
-const [companies, setCompanies] = useState<Company[]>(mockCompanies);
+const useCompany = () => {
+  const [companies, setCompanies] = useState<Company[]>(mockCompanies);
 
-return {companies, setCompanies}
-}
+  return { companies, setCompanies };
+};
 
-export default useCompany
+export default useCompany;

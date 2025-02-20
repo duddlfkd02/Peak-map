@@ -4,10 +4,9 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        Roboto: ["var(--font-Roboto)"],
-      },
-    },
+        Roboto: ["var(--font-Roboto)"]
+      }
+    }
   },
-  plugins: [],
-}
-
+  plugins: []
+};

@@ -23,7 +23,9 @@ const Pagination:React.FC<PaginationProps> = ({currentPage, totalPage, onPageCha
       {Array.from({length: totalPage}, (_, index)=>(
         <button key={index + 1}
         onClick={()=> onPageChage(index + 1)}
-        className="p-1">
+        className={`px-3 py-1 mx-1  ${
+          currentPage === index + 1 ? "bg-[#333333] text-white rounded-full" : ""
+        }`}>
           {index + 1}
         </button>
       ))}

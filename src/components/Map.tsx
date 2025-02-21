@@ -17,7 +17,7 @@ const Map = () => {
   const { companies } = useCompany();
   const mapRef = useRef<HTMLDivElement>(null);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
-  const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+  const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
 
   useEffect(() => {
     if (!location || !mapRef.current) return;
@@ -73,8 +73,11 @@ const Map = () => {
                 new window.kakao.maps.LatLng(company.latitude, company.longitude)
               );
 
-              setModalPosition({ top: point.y - 50, left: point.x - 50 });
-            }, 300);
+              const mapBounds = mapRef.current?.getBoundingClientRect();
+              if (mapBounds) {
+                setModalPosition({ top: point.y + mapBounds.top, left: point.x + mapBounds.left });
+              }
+            }, 200);
           });
         });
       });
@@ -90,10 +93,13 @@ const Map = () => {
       <div ref={mapRef} className={`h-screen w-full ${selectedCompany ? "pointer-events-none" : ""}`}></div>
 
       {/* 모달이 열릴 때만 렌더링 */}
-      {selectedCompany && (
+      {selectedCompany && modalPosition.top !== -9999 && modalPosition.left !== -9999 && (
         <Modal
           isOpen={!!selectedCompany}
-          onClose={() => setSelectedCompany(null)}
+          onClose={() => {
+            setSelectedCompany(null);
+            setModalPosition({ top: -9999, left: -9999 });
+          }}
           company={selectedCompany}
           modalPosition={modalPosition}
         />

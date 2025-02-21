@@ -22,6 +22,7 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
   const { companies } = useCompany();
   const mapRef = useRef<HTMLDivElement>(null);
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
+  const [map, setMap] = useState<any>(null);
 
   useEffect(() => {
     if (!location || !mapRef.current) return;
@@ -47,7 +48,9 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
         console.log("Kakao 지도 API 로드 완료!");
 
         const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
-        const map = new window.kakao.maps.Map(mapRef.current, { center: position, level: 3 });
+        const mapInstance = new window.kakao.maps.Map(mapRef.current, { center: position, level: 3 });
+
+        setMap(mapInstance);
 
         // 기업 리스트 마커 추가
         companies.forEach((company) => {
@@ -60,7 +63,7 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
 
           const markerInstance = new window.kakao.maps.Marker({
             position: companyPosition,
-            map,
+            map: mapInstance,
             image: markerImage
           });
 
@@ -68,14 +71,15 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
           window.kakao.maps.event.addListener(markerInstance, "click", () => {
             console.log("선택한 기업:", company);
 
-            if (selectedCompany?.id !== company.id) {
+            setSelectedCompany(null);
+            setTimeout(() => {
               setSelectedCompany(company);
-            }
+            }, 0);
 
-            map.panTo(companyPosition);
+            mapInstance.panTo(companyPosition);
 
             setTimeout(() => {
-              const projection = map.getProjection();
+              const projection = mapInstance.getProjection();
               const point = projection.containerPointFromCoords(
                 new window.kakao.maps.LatLng(company.latitude, company.longitude)
               );
@@ -91,7 +95,25 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
     };
 
     document.head.appendChild(script);
-  }, [location, companies, selectedCompany, setSelectedCompany]);
+  }, [location, companies, setSelectedCompany]);
+
+  // 기업 리스트 클릭 시 지도 이동 + 모달 위치 반영
+  useEffect(() => {
+    if (selectedCompany && map) {
+      const companyPosition = new window.kakao.maps.LatLng(selectedCompany.latitude, selectedCompany.longitude);
+      map.panTo(companyPosition);
+
+      setTimeout(() => {
+        const projection = map.getProjection();
+        const point = projection.containerPointFromCoords(companyPosition);
+
+        const mapBounds = mapRef.current?.getBoundingClientRect();
+        if (mapBounds) {
+          setModalPosition({ top: point.y + mapBounds.top, left: point.x + mapBounds.left });
+        }
+      }, 200);
+    }
+  }, [selectedCompany, map]);
 
   return (
     <div className="relative">

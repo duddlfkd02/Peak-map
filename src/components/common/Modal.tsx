@@ -1,4 +1,3 @@
-import React, { useEffect } from "react";
 import { Company } from "../../types";
 import Button from "./Button";
 
@@ -10,24 +9,10 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, company, modalPosition }) => {
-  // ESC 키 입력 시 모달 닫기
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
-
   if (!isOpen || !company) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50"
-      onClick={onClose} //배경 클릭 시 모달 닫기
-    >
+    <div className="fixed inset-0 z-50" onClick={onClose}>
       <div
         className="pointer-events-auto absolute w-64 rounded-lg bg-white p-3 shadow-lg"
         style={{ top: `${modalPosition.top}px`, left: `${modalPosition.left}px` }}

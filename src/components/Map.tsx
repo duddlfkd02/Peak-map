@@ -12,11 +12,15 @@ declare global {
   }
 }
 
-const Map = () => {
+interface MapProps {
+  selectedCompany: Company | null;
+  setSelectedCompany: (company: Company | null) => void;
+}
+
+const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
   const { location, error } = useLocation();
   const { companies } = useCompany();
   const mapRef = useRef<HTMLDivElement>(null);
-  const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
 
   useEffect(() => {
@@ -63,7 +67,10 @@ const Map = () => {
           // 마커 클릭 이벤트
           window.kakao.maps.event.addListener(markerInstance, "click", () => {
             console.log("선택한 기업:", company);
-            setSelectedCompany(company);
+
+            if (selectedCompany?.id !== company.id) {
+              setSelectedCompany(company);
+            }
 
             map.panTo(companyPosition);
 
@@ -84,7 +91,7 @@ const Map = () => {
     };
 
     document.head.appendChild(script);
-  }, [location, companies]);
+  }, [location, companies, selectedCompany, setSelectedCompany]);
 
   return (
     <div className="relative">
@@ -92,7 +99,7 @@ const Map = () => {
 
       <div ref={mapRef} className={`h-screen w-full ${selectedCompany ? "pointer-events-none" : ""}`}></div>
 
-      {/* 모달이 열릴 때만 렌더링 */}
+      {/* 마커 클릭 시 오버레이 모달 */}
       {selectedCompany && modalPosition.top !== -9999 && modalPosition.left !== -9999 && (
         <Modal
           isOpen={!!selectedCompany}

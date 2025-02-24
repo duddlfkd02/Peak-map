@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import useLocation from "../hooks/useLocation";
 import useCompany from "../hooks/useCompany";
 import marker from "../assets/images/marker.svg";
@@ -24,6 +24,27 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
   const [map, setMap] = useState<any>(null);
 
+  // 모달 위치 업데이트하는 함수
+  const updateModalPosition = useCallback(
+    (company: Company) => {
+      if (!map) return;
+      const companyPosition = new window.kakao.maps.LatLng(company.latitude, company.longitude);
+      map.panTo(companyPosition);
+
+      setTimeout(() => {
+        const projection = map.getProjection();
+        const point = projection.containerPointFromCoords(companyPosition);
+
+        const mapBounds = mapRef.current?.getBoundingClientRect();
+        if (mapBounds) {
+          setModalPosition({ top: point.y + mapBounds.top, left: point.x + mapBounds.left });
+        }
+      }, 200);
+    },
+    [map]
+  );
+
+  // 지도 로드 및 마커 초기화
   useEffect(() => {
     if (!location || !mapRef.current) return;
 
@@ -46,7 +67,6 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
     script.onload = () => {
       window.kakao.maps.load(() => {
         console.log("Kakao 지도 API 로드 완료!");
-
         const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
         const mapInstance = new window.kakao.maps.Map(mapRef.current, { center: position, level: 3 });
 
@@ -71,55 +91,27 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
           window.kakao.maps.event.addListener(markerInstance, "click", () => {
             console.log("선택한 기업:", company);
 
-            setSelectedCompany(null);
-            setTimeout(() => {
-              setSelectedCompany(company);
-            }, 0);
-
-            mapInstance.panTo(companyPosition);
-
-            setTimeout(() => {
-              const projection = mapInstance.getProjection();
-              const point = projection.containerPointFromCoords(
-                new window.kakao.maps.LatLng(company.latitude, company.longitude)
-              );
-
-              const mapBounds = mapRef.current?.getBoundingClientRect();
-              if (mapBounds) {
-                setModalPosition({ top: point.y + mapBounds.top, left: point.x + mapBounds.left });
-              }
-            }, 200);
+            setSelectedCompany(company);
+            updateModalPosition(company);
           });
         });
       });
     };
 
     document.head.appendChild(script);
-  }, [location, companies, setSelectedCompany]);
+  }, [location, companies, updateModalPosition]);
 
-  // 기업 리스트 클릭 시 지도 이동 + 모달 위치 반영
+  // 기업 리스트 클릭 시 지도 이동 + 모달 위치 업데이트
   useEffect(() => {
-    if (selectedCompany && map) {
-      const companyPosition = new window.kakao.maps.LatLng(selectedCompany.latitude, selectedCompany.longitude);
-      map.panTo(companyPosition);
-
-      setTimeout(() => {
-        const projection = map.getProjection();
-        const point = projection.containerPointFromCoords(companyPosition);
-
-        const mapBounds = mapRef.current?.getBoundingClientRect();
-        if (mapBounds) {
-          setModalPosition({ top: point.y + mapBounds.top, left: point.x + mapBounds.left });
-        }
-      }, 200);
+    if (selectedCompany) {
+      updateModalPosition(selectedCompany);
     }
-  }, [selectedCompany, map]);
+  }, [selectedCompany, updateModalPosition]);
 
   return (
     <div className="relative">
       {error && <p>{error}</p>}
-
-      <div ref={mapRef} className={`h-screen w-full ${selectedCompany ? "pointer-events-none" : ""}`}></div>
+      <div ref={mapRef} className="h-screen w-full"></div>
 
       {/* 마커 클릭 시 오버레이 모달 */}
       {selectedCompany && modalPosition.top !== -9999 && modalPosition.left !== -9999 && (

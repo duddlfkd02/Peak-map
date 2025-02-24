@@ -1,47 +1,80 @@
-import React, { useEffect } from "react";
+import { useState, useRef } from "react";
 import { Company } from "../types";
-import Button from "./common/Button";
+import InfiniteCompanyList from "./InfiniteCompanyList";
+import CompanyDetail from "./CompanyDetail";
 
 interface SlidingPanelProps {
-  company: Company | null;
-  isOpen: boolean;
-  onClose: () => void;
+  setSelectedCompany: (company: Company | null) => void;
+  selectedCompany: Company | null;
+  isPanelOpen: boolean;
+  setIsPanelOpen: (isOpen: boolean) => void;
 }
 
-const SlidingPanel: React.FC<SlidingPanelProps> = ({ company, isOpen, onClose }) => {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-  }, [isOpen]);
+const SlidingPanel: React.FC<SlidingPanelProps> = ({ setSelectedCompany, selectedCompany, isPanelOpen }) => {
+  const [panelHeight, setPanelHeight] = useState(30); // 기본 높이 (30vh)
+  const panelRef = useRef<HTMLDivElement>(null);
+  const startY = useRef<number | null>(null);
+  const prevHeight = useRef<number>(30);
+  const isDragging = useRef(false);
+
+  // 패널을 드래그하여 높이 조절하는 함수
+  const handleStart = (clientY: number) => {
+    startY.current = clientY;
+    prevHeight.current = panelHeight;
+    isDragging.current = true;
+  };
+
+  const handleMove = (clientY: number) => {
+    if (!startY.current || !isDragging.current) return;
+    const deltaY = startY.current - clientY;
+    const newHeight = prevHeight.current + (deltaY / window.innerHeight) * 100;
+
+    setPanelHeight(Math.min(80, Math.max(30, newHeight))); // 30vh ~ 80vh 범위로 제한
+  };
+
+  const handleEnd = () => {
+    isDragging.current = false;
+  };
+
+  // ✅ 터치 이벤트 (모바일용)
+  const handleTouchStart = (e: React.TouchEvent) => handleStart(e.touches[0].clientY);
+  const handleTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientY);
+  const handleTouchEnd = () => handleEnd();
+
+  // ✅ 마우스 이벤트 (개발자도구 테스트용)
+  const handleMouseDown = (e: React.MouseEvent) => handleStart(e.clientY);
+  const handleMouseMove = (e: React.MouseEvent) => handleMove(e.clientY);
+  const handleMouseUp = () => handleEnd();
 
   return (
     <div
-      className={`fixed bottom-0 left-0 w-full bg-white p-4 shadow-lg transition-transform ${
-        isOpen ? "translate-y-0" : "translate-y-full"
+      ref={panelRef}
+      className={`fixed bottom-0 left-0 right-0 z-50 w-full overflow-hidden rounded-t-xl bg-white shadow-lg transition-transform duration-300 ease-in-out ${
+        isPanelOpen ? "translate-y-0" : "translate-y-full"
       }`}
+      style={{ height: `${panelHeight}vh` }}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
     >
-      {company ? (
-        <>
-          <h2 className="text-xl font-bold">{company.name}</h2>
-          <p className="text-sm">{company.address}</p>
+      {/* 패널 핸들 (드래그) */}
+      <div
+        className="flex h-12 w-full cursor-pointer items-center justify-center"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+      >
+        <div className="h-1.5 w-12 rounded-full bg-gray-300"></div>
+      </div>
 
-          <div className="mt-4 flex gap-2">
-            {company.phone && (
-              <Button label="전화하기" onClick={() => (window.location.href = `tel:${company.phone}`)} />
-            )}
-            {company.website && (
-              <Button label="홈페이지" variant="secondary" onClick={() => window.open(company.website, "_blank")} />
-            )}
-          </div>
-
-          <Button label="닫기" variant="outline" onClick={onClose} className="mt-4 w-full" />
-        </>
-      ) : (
-        <p>기업 정보를 불러오는 중 입니다.</p>
-      )}
+      {/* 패널 내부 컨텐츠 */}
+      <div className="h-full overflow-y-auto px-4 pb-4">
+        {selectedCompany ? (
+          <CompanyDetail company={selectedCompany} onClose={() => setSelectedCompany(null)} />
+        ) : (
+          <InfiniteCompanyList setSelectedCompany={setSelectedCompany} />
+        )}
+      </div>
     </div>
   );
 };

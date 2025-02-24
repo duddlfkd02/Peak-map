@@ -15,9 +15,10 @@ declare global {
 interface MapProps {
   selectedCompany: Company | null;
   setSelectedCompany: (company: Company | null) => void;
+  setIsPanelOpen: (isOpen: boolean) => void;
 }
 
-const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
+const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) => {
   const { location, error } = useLocation();
   const { companies } = useCompany();
   const mapRef = useRef<HTMLDivElement>(null);
@@ -93,6 +94,7 @@ const Map = ({ selectedCompany, setSelectedCompany }: MapProps) => {
 
             setSelectedCompany(company);
             updateModalPosition(company);
+            setIsPanelOpen(true);
           });
         });
       });

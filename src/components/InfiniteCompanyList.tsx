@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Company } from "../types";
+import { useState, useEffect } from "react";
 import useCompany from "../hooks/useCompany";
-import phone from "../assets/images/phone ico.svg";
-import web from "../assets/images/web ico.svg";
+import { Company } from "../types";
+import Button from "./common/Button";
 
 interface InfiniteCompanyListProps {
   setSelectedCompany: (company: Company) => void;
@@ -12,65 +11,33 @@ const InfiniteCompanyList = ({ setSelectedCompany }: InfiniteCompanyListProps) =
   const { companies } = useCompany();
   const [visibleCompanies, setVisibleCompanies] = useState<Company[]>([]);
   const [page, setPage] = useState(1);
-  const observerRef = useRef<HTMLDivElement | null>(null);
-
-  const loadMore = useCallback(() => {
-    const itemsPerPage = 5;
-    const nextPage = companies.slice(0, page * itemsPerPage);
-    setVisibleCompanies(nextPage);
-  }, [companies, page]);
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    loadMore();
-  }, [page, loadMore]);
+    setVisibleCompanies(companies.slice(0, page * itemsPerPage));
+  }, [page, companies]);
 
-  // 무한 스크롤
-  useEffect(() => {
-    if (!observerRef.current) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setPage((prev) => prev + 1);
-        }
-      },
-      { threshold: 1.0 }
-    );
-
-    observer.observe(observerRef.current);
-    return () => observer.disconnect();
-  }, []);
+  const loadMore = () => {
+    if (visibleCompanies.length < companies.length) {
+      setPage(page + 1);
+    }
+  };
 
   return (
-    <div>
-      <h2 className="mb-4 text-xl font-semibold">기업 목록</h2>
-      <ul className="space-y-6 overflow-y-auto">
-        {visibleCompanies.map((company) => (
-          <li
-            key={company.id}
-            onClick={() => setSelectedCompany(company)}
-            className="rounded-md bg-white p-3 shadow-md"
-          >
-            <h3>
-              {company.name} <span className="text-sm text-gray-500">{company.category}</span>
-            </h3>
-            <p className="mb-2 text-sm">{company.address}</p>
-
-            <div>
-              <p className="flex gap-2 text-sm">
-                <img src={phone} alt="전화 아이콘" />
-                {company.phone}
-              </p>
-              <p className="flex gap-2 text-sm">
-                <img src={web} alt="웹 아이콘" />
-                {company.website}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      <div ref={observerRef} className="h-10"></div>
+    <div className="max-h-[65vh] overflow-y-auto pb-16">
+      {visibleCompanies.map((company) => (
+        <div
+          key={company.id}
+          className="mb-2 rounded-md bg-white p-3 shadow-md"
+          onClick={() => setSelectedCompany(company)}
+        >
+          <h3 className="text-lg font-bold">{company.name}</h3>
+          <p className="text-sm text-gray-600">{company.address}</p>
+        </div>
+      ))}
+      {visibleCompanies.length < companies.length && (
+        <Button label="더보기" onClick={loadMore} className="mt-2 w-full" />
+      )}
     </div>
   );
 };

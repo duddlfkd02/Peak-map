@@ -24,6 +24,38 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
   const mapRef = useRef<HTMLDivElement>(null);
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
   const [map, setMap] = useState<any>(null);
+  const [isMapLoaded, setIsMapLoaded] = useState(false);
+
+  //디바운싱 함수 (resize 이벤트 최적화)
+  const debounce = (func: () => void, delay: number) => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        func();
+      }, delay);
+    };
+  };
+
+  // 지도 크기 resize 시 실행
+  const handleResize = useCallback(
+    debounce(() => {
+      if (!map) return;
+      console.log("화면이 재조정되었습니다.");
+      map.relayout();
+      if (location) {
+        const center = new window.kakao.maps.LatLng(location.latitude, location.longitude);
+        map.setCenter(center);
+      }
+    }, 300),
+    [map, location]
+  );
+
+  useEffect(() => {
+    if (!map) return;
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [map, handleResize]);
 
   // 모달 위치 업데이트하는 함수
   const updateModalPosition = useCallback(
@@ -45,7 +77,7 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
     [map]
   );
 
-  // 지도 로드 및 마커 초기화
+  // 지도 API 로드 및 마커 초기화
   useEffect(() => {
     if (!location || !mapRef.current) return;
 
@@ -55,53 +87,54 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
       return;
     }
 
-    if (document.getElementById("kakao-map-script")) {
-      console.log("Kakao 지도 API가 이미 로드되었습니다.");
-      return;
-    }
+    const initializeMap = () => {
+      console.log("카카오 지도 API 로드 완료!");
+      const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
+      const mapInstance = new window.kakao.maps.Map(mapRef.current, { center: position, level: 3 });
 
-    const script = document.createElement("script");
-    script.id = "kakao-map-script";
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&autoload=false`;
-    script.async = true;
+      setMap(mapInstance);
+      setIsMapLoaded(true); // 무한 루프 방지
 
-    script.onload = () => {
-      window.kakao.maps.load(() => {
-        console.log("Kakao 지도 API 로드 완료!");
-        const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
-        const mapInstance = new window.kakao.maps.Map(mapRef.current, { center: position, level: 3 });
+      // 기업 리스트 마커 추가
+      companies.forEach((company) => {
+        const companyPosition = new window.kakao.maps.LatLng(company.latitude, company.longitude);
 
-        setMap(mapInstance);
+        // marker 이미지 설정
+        const imageSize = new window.kakao.maps.Size(35, 35);
+        const imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+        const markerImage = new window.kakao.maps.MarkerImage(marker, imageSize, imageOption);
 
-        // 기업 리스트 마커 추가
-        companies.forEach((company) => {
-          const companyPosition = new window.kakao.maps.LatLng(company.latitude, company.longitude);
+        const markerInstance = new window.kakao.maps.Marker({
+          position: companyPosition,
+          map: mapInstance,
+          image: markerImage
+        });
 
-          // marker 이미지 설정
-          const imageSize = new window.kakao.maps.Size(35, 35);
-          const imageOption = { offset: new window.kakao.maps.Point(27, 69) };
-          const markerImage = new window.kakao.maps.MarkerImage(marker, imageSize, imageOption);
-
-          const markerInstance = new window.kakao.maps.Marker({
-            position: companyPosition,
-            map: mapInstance,
-            image: markerImage
-          });
-
-          // 마커 클릭 이벤트
-          window.kakao.maps.event.addListener(markerInstance, "click", () => {
-            console.log("선택한 기업:", company);
-
-            setSelectedCompany(company);
-            updateModalPosition(company);
-            setIsPanelOpen(true);
-          });
+        // 마커 클릭 이벤트
+        window.kakao.maps.event.addListener(markerInstance, "click", () => {
+          console.log("선택한 기업:", company);
+          setSelectedCompany(company);
+          updateModalPosition(company);
+          setIsPanelOpen(true);
         });
       });
     };
 
-    document.head.appendChild(script);
-  }, [location, companies, updateModalPosition]);
+    // 기존에 스크립트가 추가된 경우 다시 로드
+    if (window.kakao && window.kakao.maps) {
+      initializeMap();
+    } else {
+      const script = document.createElement("script");
+      script.id = "kakao-map-script";
+      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&autoload=false`;
+      script.async = true;
+      script.onload = () => {
+        window.kakao.maps.load(initializeMap);
+      };
+
+      document.head.appendChild(script);
+    }
+  }, [location, companies]);
 
   // 기업 리스트 클릭 시 지도 이동 + 모달 위치 업데이트
   useEffect(() => {
@@ -113,7 +146,9 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
   return (
     <div className="relative">
       {error && <p>{error}</p>}
-      <div ref={mapRef} className="h-screen w-full"></div>
+      <div ref={mapRef} className="h-screen w-full">
+        {!isMapLoaded && <p className="absolute inset-0 flex items-center justify-center">🗺 지도 로드 중...</p>}
+      </div>
 
       {/* 마커 클릭 시 오버레이 모달 */}
       {selectedCompany && modalPosition.top !== -9999 && modalPosition.left !== -9999 && (

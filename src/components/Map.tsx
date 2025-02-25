@@ -25,6 +25,7 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
   const [map, setMap] = useState<any>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [windowSize, setWindowSize] = useState(window.innerWidth);
 
   //디바운싱 함수 (resize 이벤트 최적화)
   const debounce = (func: () => void, delay: number) => {
@@ -38,24 +39,14 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
   };
 
   // 지도 크기 resize 시 실행
-  const handleResize = useCallback(
-    debounce(() => {
-      if (!map) return;
-      console.log("화면이 재조정되었습니다.");
-      map.relayout();
-      if (location) {
-        const center = new window.kakao.maps.LatLng(location.latitude, location.longitude);
-        map.setCenter(center);
-      }
-    }, 300),
-    [map, location]
-  );
-
   useEffect(() => {
-    if (!map) return;
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [map, handleResize]);
+    const handleWindowResize = debounce(() => {
+      setWindowSize(window.innerWidth);
+    }, 300);
+
+    window.addEventListener("resize", handleWindowResize);
+    return () => window.removeEventListener("resize", handleWindowResize);
+  }, []);
 
   // 모달 위치 업데이트하는 함수
   const updateModalPosition = useCallback(
@@ -134,7 +125,7 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
 
       document.head.appendChild(script);
     }
-  }, [location, companies]);
+  }, [location, companies, windowSize]);
 
   // 기업 리스트 클릭 시 지도 이동 + 모달 위치 업데이트
   useEffect(() => {

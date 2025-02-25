@@ -1,1 +1,12 @@
-// 기업 선택 상태관리를 위한 store
+import { create } from "zustand";
+import { Company } from "../types";
+
+interface CompanyState {
+  selectedCompany: Company | null;
+  setSelectedCompany: (company: Company | null) => void;
+}
+
+export const useCompanyStore = create<CompanyState>((set) => ({
+  selectedCompany: null,
+  setSelectedCompany: (company) => set({ selectedCompany: company })
+}));

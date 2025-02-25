@@ -5,6 +5,9 @@ import useCompany from "../hooks/useCompany";
 import marker from "../assets/images/marker.svg";
 import Modal from "./common/Modal";
 import { Company } from "../types";
+import { useCompanyStore } from "../stores/useCompanyStore";
+import { useMapStore } from "../stores/useMapStore";
+import { useUIStore } from "../stores/useUIStore";
 
 declare global {
   interface Window {
@@ -12,19 +15,18 @@ declare global {
   }
 }
 
-interface MapProps {
-  selectedCompany: Company | null;
-  setSelectedCompany: (company: Company | null) => void;
-  setIsPanelOpen: (isOpen: boolean) => void;
-}
-
-const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) => {
+const Map = () => {
   const { location, error } = useLocation();
   const { companies } = useCompany();
   const mapRef = useRef<HTMLDivElement>(null);
+
+  // Zustnad 전역상태
+  const { selectedCompany, setSelectedCompany } = useCompanyStore();
+  const { map, setMap, isMapLoaded, setIsMapLoaded } = useMapStore();
+  const { setIsPanelOpen } = useUIStore();
+
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
-  const [map, setMap] = useState<any>(null);
-  const [isMapLoaded, setIsMapLoaded] = useState(false);
+
   const [windowSize, setWindowSize] = useState(window.innerWidth);
 
   //디바운싱 함수 (resize 이벤트 최적화)
@@ -68,7 +70,44 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
     [map]
   );
 
-  // 지도 API 로드 및 마커 초기화
+  const initializeMap = useCallback(() => {
+    if (!location || !mapRef.current) return;
+    if (!window.kakao?.maps) {
+      console.error("카카오 지도 API가 로드되지 않았습니다.");
+      return;
+    }
+
+    console.log("카카오 지도 API 로드 완료!");
+    const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
+    const mapInstance = new window.kakao.maps.Map(mapRef.current, { center: position, level: 3 });
+
+    setMap(mapInstance);
+    setIsMapLoaded(true);
+
+    // 기업 리스트 마커 추가
+    companies.forEach((company) => {
+      const companyPosition = new window.kakao.maps.LatLng(company.latitude, company.longitude);
+      const imageSize = new window.kakao.maps.Size(35, 35);
+      const imageOption = { offset: new window.kakao.maps.Point(27, 69) };
+      const markerImage = new window.kakao.maps.MarkerImage(marker, imageSize, imageOption);
+
+      const markerInstance = new window.kakao.maps.Marker({
+        position: companyPosition,
+        map: mapInstance,
+        image: markerImage
+      });
+
+      // 마커 클릭 이벤트
+      window.kakao.maps.event.addListener(markerInstance, "click", () => {
+        console.log("선택한 기업:", company);
+        setSelectedCompany(company);
+        updateModalPosition(company);
+        setIsPanelOpen(true);
+      });
+    });
+  }, [location, companies, setMap, setIsMapLoaded, setSelectedCompany, setIsPanelOpen, windowSize]);
+
+  // 지도 API 로드 (최초 1회 실행)
   useEffect(() => {
     if (!location || !mapRef.current) return;
 
@@ -78,54 +117,19 @@ const Map = ({ selectedCompany, setSelectedCompany, setIsPanelOpen }: MapProps) 
       return;
     }
 
-    const initializeMap = () => {
-      console.log("카카오 지도 API 로드 완료!");
-      const position = new window.kakao.maps.LatLng(location.latitude, location.longitude);
-      const mapInstance = new window.kakao.maps.Map(mapRef.current, { center: position, level: 3 });
-
-      setMap(mapInstance);
-      setIsMapLoaded(true); // 무한 루프 방지
-
-      // 기업 리스트 마커 추가
-      companies.forEach((company) => {
-        const companyPosition = new window.kakao.maps.LatLng(company.latitude, company.longitude);
-
-        // marker 이미지 설정
-        const imageSize = new window.kakao.maps.Size(35, 35);
-        const imageOption = { offset: new window.kakao.maps.Point(27, 69) };
-        const markerImage = new window.kakao.maps.MarkerImage(marker, imageSize, imageOption);
-
-        const markerInstance = new window.kakao.maps.Marker({
-          position: companyPosition,
-          map: mapInstance,
-          image: markerImage
-        });
-
-        // 마커 클릭 이벤트
-        window.kakao.maps.event.addListener(markerInstance, "click", () => {
-          console.log("선택한 기업:", company);
-          setSelectedCompany(company);
-          updateModalPosition(company);
-          setIsPanelOpen(true);
-        });
-      });
-    };
-
-    // 기존에 스크립트가 추가된 경우 다시 로드
-    if (window.kakao && window.kakao.maps) {
+    if (window.kakao?.maps) {
       initializeMap();
-    } else {
-      const script = document.createElement("script");
-      script.id = "kakao-map-script";
-      script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&autoload=false`;
-      script.async = true;
-      script.onload = () => {
-        window.kakao.maps.load(initializeMap);
-      };
-
-      document.head.appendChild(script);
+      return;
     }
-  }, [location, companies, windowSize]);
+
+    const script = document.createElement("script");
+    script.id = "kakao-map-script";
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${kakaoApiKey}&autoload=false`;
+    script.async = true;
+    script.onload = () => window.kakao.maps.load(initializeMap);
+
+    document.head.appendChild(script);
+  }, [initializeMap]);
 
   // 기업 리스트 클릭 시 지도 이동 + 모달 위치 업데이트
   useEffect(() => {

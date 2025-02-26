@@ -27,8 +27,6 @@ const Map = () => {
 
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
 
-  const [windowSize, setWindowSize] = useState(window.innerWidth);
-
   //디바운싱 함수 (resize 이벤트 최적화)
   const debounce = (func: () => void, delay: number) => {
     let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -41,9 +39,11 @@ const Map = () => {
   };
 
   // 지도 크기 resize 시 실행
+  const windowSizeRef = useRef(window.innerWidth);
+
   useEffect(() => {
     const handleWindowResize = debounce(() => {
-      setWindowSize(window.innerWidth);
+      windowSizeRef.current = window.innerWidth;
     }, 300);
 
     window.addEventListener("resize", handleWindowResize);
@@ -105,7 +105,7 @@ const Map = () => {
         setIsPanelOpen(true);
       });
     });
-  }, [location, companies, setMap, setIsMapLoaded, setSelectedCompany, setIsPanelOpen, windowSize]);
+  }, [location, companies, setMap, setIsMapLoaded, setSelectedCompany, setIsPanelOpen]);
 
   // 지도 API 로드 (최초 1회 실행)
   useEffect(() => {

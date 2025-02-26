@@ -1,16 +1,14 @@
 import { useState, useRef } from "react";
-import { Company } from "../types";
+// import { Company } from "../types";
 import InfiniteCompanyList from "./InfiniteCompanyList";
 import CompanyDetail from "./CompanyDetail";
+import { useCompanyStore } from "../stores/useCompanyStore";
+import { useUIStore } from "../stores/useUIStore";
 
-interface SlidingPanelProps {
-  setSelectedCompany: (company: Company | null) => void;
-  selectedCompany: Company | null;
-  isPanelOpen: boolean;
-  setIsPanelOpen: (isOpen: boolean) => void;
-}
+const SlidingPanel = () => {
+  const { selectedCompany } = useCompanyStore();
+  const { isPanelOpen } = useUIStore();
 
-const SlidingPanel: React.FC<SlidingPanelProps> = ({ setSelectedCompany, selectedCompany, isPanelOpen }) => {
   const [panelHeight, setPanelHeight] = useState(30); // 기본 높이 (30vh)
   const panelRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
@@ -69,11 +67,7 @@ const SlidingPanel: React.FC<SlidingPanelProps> = ({ setSelectedCompany, selecte
 
       {/* 패널 내부 컨텐츠 */}
       <div className="h-full overflow-y-auto px-4 pb-4">
-        {selectedCompany ? (
-          <CompanyDetail company={selectedCompany} onClose={() => setSelectedCompany(null)} />
-        ) : (
-          <InfiniteCompanyList setSelectedCompany={setSelectedCompany} />
-        )}
+        {selectedCompany ? <CompanyDetail /> : <InfiniteCompanyList />}
       </div>
     </div>
   );

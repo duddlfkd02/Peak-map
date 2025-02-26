@@ -1,42 +1,41 @@
-import { Company } from "../types";
 import Button from "./common/Button";
 import phone from "../assets/images/phone ico.svg";
 import web from "../assets/images/web ico.svg";
+import { useCompanyStore } from "../stores/useCompanyStore";
 
-interface CompanyDetailProps {
-  company: Company;
-  onClose: () => void;
-}
+const CompanyDetail = () => {
+  const { selectedCompany, setSelectedCompany } = useCompanyStore();
 
-const CompanyDetail = ({ company, onClose }: CompanyDetailProps) => {
+  if (!selectedCompany) return null;
+
   return (
     <div className="space-y-2 p-2">
-      <h2 className="text-xl font-bold">{company.name}</h2>
-      <p className="text-sm text-[#333333]">{company.address}</p>
+      <h2 className="text-xl font-bold">{selectedCompany.name}</h2>
+      <p className="text-sm text-[#333333]">{selectedCompany.address}</p>
       <div className="space-y-2">
         <p className="flex gap-2 text-sm">
           <img src={phone} alt="전화 아이콘" />
-          {company.phone}
+          {selectedCompany.phone}
         </p>
         <p className="flex gap-2 text-sm">
           <img src={web} alt="웹 아이콘" />
-          {company.website}
+          {selectedCompany.website}
         </p>
       </div>
 
       <div className="flex justify-between">
-        {company.phone && (
+        {selectedCompany.phone && (
           <Button
             label="전화하기"
-            onClick={() => (window.location.href = `tel:${company.phone}`)}
+            onClick={() => (window.location.href = `tel:${selectedCompany.phone}`)}
             className="text-sm"
           />
         )}
-        {company.website && (
+        {selectedCompany.website && (
           <Button
             label="홈페이지"
             variant="secondary"
-            onClick={() => window.open(company.website, "_blank")}
+            onClick={() => window.open(selectedCompany.website, "_blank")}
             className="text-sm"
           />
         )}
@@ -44,11 +43,11 @@ const CompanyDetail = ({ company, onClose }: CompanyDetailProps) => {
         <Button
           label="공유하기"
           variant="outline"
-          onClick={() => window.open(company.website, "_blank")}
+          onClick={() => window.open(selectedCompany.website, "_blank")}
           className="text-sm"
         />
       </div>
-      <Button label="닫기" variant="outline" onClick={onClose} className="w-full" />
+      <Button label="닫기" variant="outline" onClick={() => setSelectedCompany(null)} className="w-full" />
     </div>
   );
 };

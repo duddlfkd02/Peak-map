@@ -1,16 +1,13 @@
-import useCompany from "../../hooks/useCompany";
+import { useEffect, useState } from "react";
+import { useCompanyStore } from "../../stores/useCompanyStore";
 import Pagination from "./Pagination";
-import { useState } from "react";
-import { Company } from "../../types";
 import phone from "../../assets/images/phone ico.svg";
 import web from "../../assets/images/web ico.svg";
+import { mockCompanies } from "../../mocks/companies";
 
-interface CompanyListProps {
-  setSelectedCompany: (company: Company) => void;
-}
+const CompanyList = () => {
+  const { companies, setSelectedCompany, setCompanies } = useCompanyStore();
 
-const CompanyList = ({ setSelectedCompany }: CompanyListProps) => {
-  const { companies } = useCompany();
   const itemsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -19,6 +16,11 @@ const CompanyList = ({ setSelectedCompany }: CompanyListProps) => {
 
   const currentCompanies = companies.slice(indexOfFirstItem, indexOfLastItem);
   const totalPage = Math.ceil(companies.length / itemsPerPage);
+
+  useEffect(() => {
+    const mockData = mockCompanies;
+    setCompanies(mockData);
+  }, [setCompanies]);
 
   return (
     <div>

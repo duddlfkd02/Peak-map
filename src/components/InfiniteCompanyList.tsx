@@ -1,14 +1,11 @@
 import { useState, useEffect } from "react";
-import useCompany from "../hooks/useCompany";
+// import useCompany from "../hooks/useCompany";
 import { Company } from "../types";
 import Button from "./common/Button";
+import { useCompanyStore } from "../stores/useCompanyStore";
 
-interface InfiniteCompanyListProps {
-  setSelectedCompany: (company: Company) => void;
-}
-
-const InfiniteCompanyList = ({ setSelectedCompany }: InfiniteCompanyListProps) => {
-  const { companies } = useCompany();
+const InfiniteCompanyList = () => {
+  const { companies, setSelectedCompany } = useCompanyStore();
   const [visibleCompanies, setVisibleCompanies] = useState<Company[]>([]);
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;

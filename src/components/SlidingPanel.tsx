@@ -1,5 +1,4 @@
 import { useState, useRef } from "react";
-// import { Company } from "../types";
 import InfiniteCompanyList from "./InfiniteCompanyList";
 import CompanyDetail from "./CompanyDetail";
 import { useCompanyStore } from "../stores/useCompanyStore";
@@ -9,7 +8,7 @@ const SlidingPanel = () => {
   const { selectedCompany } = useCompanyStore();
   const { isPanelOpen } = useUIStore();
 
-  const [panelHeight, setPanelHeight] = useState(30); // 기본 높이 (30vh)
+  const [panelHeight, setPanelHeight] = useState(30);
   const panelRef = useRef<HTMLDivElement>(null);
   const startY = useRef<number | null>(null);
   const prevHeight = useRef<number>(30);
@@ -20,6 +19,7 @@ const SlidingPanel = () => {
     startY.current = clientY;
     prevHeight.current = panelHeight;
     isDragging.current = true;
+    console.log("handleStart", handleStart);
   };
 
   const handleMove = (clientY: number) => {
@@ -27,22 +27,22 @@ const SlidingPanel = () => {
     const deltaY = startY.current - clientY;
     const newHeight = prevHeight.current + (deltaY / window.innerHeight) * 100;
 
-    setPanelHeight(Math.min(80, Math.max(30, newHeight))); // 30vh ~ 80vh 범위로 제한
+    setPanelHeight(Math.min(80, Math.max(30, newHeight)));
   };
 
   const handleEnd = () => {
     isDragging.current = false;
   };
 
-  // ✅ 터치 이벤트 (모바일용)
-  const handleTouchStart = (e: React.TouchEvent) => handleStart(e.touches[0].clientY);
-  const handleTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientY);
-  const handleTouchEnd = () => handleEnd();
-
-  // ✅ 마우스 이벤트 (개발자도구 테스트용)
+  /** ✅ 마우스 이벤트 (PC) */
   const handleMouseDown = (e: React.MouseEvent) => handleStart(e.clientY);
   const handleMouseMove = (e: React.MouseEvent) => handleMove(e.clientY);
   const handleMouseUp = () => handleEnd();
+
+  /** ✅ 터치 이벤트 (모바일) */
+  const handleTouchStart = (e: React.TouchEvent) => handleStart(e.touches[0].clientY);
+  const handleTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientY);
+  const handleTouchEnd = () => handleEnd();
 
   return (
     <div
@@ -51,17 +51,15 @@ const SlidingPanel = () => {
         isPanelOpen ? "translate-y-0" : "translate-y-full"
       }`}
       style={{ height: `${panelHeight}vh` }}
+      onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
       {/* 패널 핸들 (드래그) */}
-      <div
-        className="flex h-12 w-full cursor-pointer items-center justify-center"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onMouseDown={handleMouseDown}
-      >
+      <div className="flex h-12 w-full cursor-pointer items-center justify-center">
         <div className="h-1.5 w-12 rounded-full bg-gray-300"></div>
       </div>
 

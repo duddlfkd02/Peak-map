@@ -7,4 +7,7 @@ export interface Company {
   address: string;
   phone?: string;
   website?: string;
+  business_hours?: string;
+  rating?: number;
+  is_open?: boolean;
 }

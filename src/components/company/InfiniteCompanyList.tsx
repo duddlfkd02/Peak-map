@@ -1,5 +1,5 @@
-import Button from "./common/Button";
-import { useCompanyStore } from "../stores/useCompanyStore";
+import Button from "../common/Button";
+import { useCompanyStore } from "../../stores/useCompanyStore";
 import { useEffect, useState } from "react";
 
 const InfiniteCompanyList = () => {

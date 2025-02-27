@@ -1,7 +1,7 @@
-import Button from "./common/Button";
-import phone from "../assets/images/phone ico.svg";
-import web from "../assets/images/web ico.svg";
-import { useCompanyStore } from "../stores/useCompanyStore";
+import Button from "../common/Button";
+import phone from "../../assets/images/phone ico.svg";
+import web from "../../assets/images/web ico.svg";
+import { useCompanyStore } from "../../stores/useCompanyStore";
 import { useMemo } from "react";
 
 const CompanyDetail = () => {

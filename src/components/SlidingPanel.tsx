@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import InfiniteCompanyList from "./InfiniteCompanyList";
-import CompanyDetail from "./CompanyDetail";
+import InfiniteCompanyList from "./company/InfiniteCompanyList";
+import CompanyDetail from "./company/CompanyDetail";
 import { useCompanyStore } from "../stores/useCompanyStore";
 import { useUIStore } from "../stores/useUIStore";
 

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCompanyStore } from "../../stores/useCompanyStore";
-import Pagination from "./Pagination";
+import Pagination from "../common/Pagination";
 import { mockCompanies } from "../../mocks/companies";
 import { Company } from "../../types";
 import CompanyCard from "./CompanyCard";

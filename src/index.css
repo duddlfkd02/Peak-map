@@ -10,3 +10,11 @@
 :root {
   --font-Roboto: "Roboto";
 }
+
+html {
+  @apply bg-white text-black;
+}
+
+html.dark {
+  @apply bg-darkGray text-lightGray;
+}

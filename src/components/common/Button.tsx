@@ -6,11 +6,11 @@ interface ButtonProps {
 }
 
 const Button: React.FC<ButtonProps> = ({ label, onClick, variant = "primary", className }) => {
-  const baseButton = "px-4 py-2 rounded-full transition";
+  const baseButton = "rounded-button font-medium transition duration-200";
   const styles = {
-    primary: "bg-purple-500 hover:bg-purple-600 text-white",
-    secondary: "bg-gray-700 hover:bg-gray-800 text-white",
-    outline: "border border-gray-700 text-gray-700 hover:bg-gray-200"
+    primary: "bg-primary text-white px-4 py-2 hover:bg-opacity-90",
+    secondary: "bg-lightGray text-darkGray px-4 py-2 hover:bg-opacity-80",
+    outline: "border border-primary text-primary px-4 py-2 hover:bg-primary hover:text-white"
   };
 
   return (

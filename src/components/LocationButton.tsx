@@ -16,7 +16,7 @@ const LocationButton = () => {
     }
   };
 
-  return <Button label="📍" className="bg-white" onClick={handleLocationClick} />;
+  return <Button label="📍" className="rounded-full bg-white" onClick={handleLocationClick} />;
 };
 
 export default LocationButton;

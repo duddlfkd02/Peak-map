@@ -9,12 +9,12 @@ const PcLayout = () => {
   return (
     <div className="flex h-screen">
       {/* 왼쪽: 기업 리스트 */}
-      <div className="w-[350px] overflow-y-auto bg-white p-4 shadow-md">
+      <div className="dark:bg-darkGray w-[350px] bg-white p-4">
         <CompanyList />
       </div>
 
       {/* 가운데: 지도 */}
-      <div className="h-full flex-1">
+      <div className="min-h-fit flex-1">
         <Map />
       </div>
 

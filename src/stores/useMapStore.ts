@@ -7,15 +7,23 @@ interface MapState {
   setMap: (map: any) => void;
   isMapLoaded: boolean;
   setIsMapLoaded: (loaded: boolean) => void;
+  moveToCurrentLocation: (latitude: number, longitude: number) => void;
 }
 
 export const useMapStore = create<MapState>()(
   devtools(
-    (set) => ({
+    (set, get) => ({
       map: null,
       setMap: (map) => set({ map }),
       isMapLoaded: false,
-      setIsMapLoaded: (loaded) => set({ isMapLoaded: loaded })
+      setIsMapLoaded: (loaded) => set({ isMapLoaded: loaded }),
+      moveToCurrentLocation: (latitude, longitude) => {
+        const { map } = get();
+        if (!map) return;
+
+        const position = new window.kakao.maps.LatLng(latitude, longitude);
+        map.panTo(position);
+      }
     }),
     { name: "MapStore" }
   )

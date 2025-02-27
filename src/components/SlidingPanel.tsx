@@ -19,7 +19,6 @@ const SlidingPanel = () => {
     startY.current = clientY;
     prevHeight.current = panelHeight;
     isDragging.current = true;
-    console.log("handleStart", handleStart);
   };
 
   const handleMove = (clientY: number) => {

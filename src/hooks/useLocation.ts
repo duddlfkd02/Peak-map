@@ -1,34 +1,13 @@
-import { useEffect, useState } from "react";
-
-type Location = {
-  latitude: number;
-  longitude: number;
-} | null;
+import { useEffect } from "react";
+import { useLocationStore } from "../stores/useLocationStore";
 
 const useLocation = () => {
-  const [location, setLocation] = useState<Location>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { location, error, getLocation } = useLocationStore();
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setError("geolocation을 지원하지 않습니다.");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLocation({
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude
-        });
-      },
-      (error) => {
-        setError(`현재 위치를 불러올 수 없습니다., ${error.message}`);
-      }
-    );
-  }, []);
-  // console.log("위치 불러오기 성공",location)
-  return { location, error };
+    getLocation(); // 초기 위치
+  }, [getLocation]);
+  return { location, error, getLocation };
 };
 
 export default useLocation;

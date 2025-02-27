@@ -6,7 +6,6 @@ import { useCompanyStore } from "../stores/useCompanyStore";
 import { useMapStore } from "../stores/useMapStore";
 import { loadKakaoMap } from "../utils/kakaoMap";
 import useMapMarkers from "../hooks/useMapMarkers";
-import LocationButton from "./LocationButton";
 
 const Map = () => {
   const { location, error } = useLocation();
@@ -83,9 +82,6 @@ const Map = () => {
           modalPosition={modalPosition}
         />
       )}
-      <div className="absolute right-3 top-3 z-50">
-        <LocationButton />
-      </div>
     </div>
   );
 };

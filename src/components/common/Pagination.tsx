@@ -9,17 +9,13 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPage, onPageChage }) => {
-  const visiblePages = 5;
+  const maxVisiblePages = 5;
   const [displayPages, setDisplayPage] = useState<number[]>([]);
 
   useEffect(() => {
-    let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
-    let endPage = startPage + visiblePages - 1;
-
-    if (endPage > totalPage) {
-      endPage = totalPage;
-      startPage = Math.max(1, endPage - visiblePages + 1);
-    }
+    const currentGroup = Math.ceil(currentPage / maxVisiblePages);
+    const startPage = (currentGroup - 1) * maxVisiblePages + 1;
+    const endPage = Math.min(currentGroup * maxVisiblePages, totalPage);
 
     setDisplayPage(Array.from({ length: endPage - startPage + 1 }, (_, index) => startPage + index));
   }, [currentPage, totalPage]);

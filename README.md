@@ -27,7 +27,6 @@
     ┃ ┗ Home.tsx # 메인 페이지<br>
     ┣ hooks<br>
     ┃ ┣ useLocation.ts # 현재 위치 가져오는 훅<br>
-    ┃ ┗ useCompany.ts # 기업 데이터 가져오는 훅<br>
     ┣ types<br>
     ┃ ┗ index.ts # TypeScript 타입 정의<br>
     ┣ index.css<br>

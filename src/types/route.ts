@@ -9,6 +9,8 @@ export interface RouteResponse {
       origin: { lat: number; lng: number };
       destination: { lat: number; lng: number };
       waypoints: { lat: number; lng: number }[];
+      duration: number;
+      distance: number;
     };
   }[];
 }

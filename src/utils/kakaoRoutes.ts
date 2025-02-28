@@ -15,8 +15,14 @@ const WAYPOINTS_URL = "https://apis-navi.kakaomobility.com/v1/directions";
 export const fetchRoute = async (
   start: { lat: number; lng: number },
   waypoints: { lat: number; lng: number }[],
-  destination: { lat: number; lng: number }
-): Promise<{ summary: RouteResponse["routes"][0]["summary"]; path: kakao.maps.LatLng[] } | null> => {
+  destination: { lat: number; lng: number },
+  priority: "TIME" | "DISTANCE"
+): Promise<{
+  summary: RouteResponse["routes"][0]["summary"];
+  path: kakao.maps.LatLng[];
+  duration: number;
+  distance: number;
+} | null> => {
   try {
     const waypointsParam = Array.isArray(waypoints) ? waypoints.map((wp) => `${wp.lng},${wp.lat}`).join("|") : "";
 
@@ -29,7 +35,7 @@ export const fetchRoute = async (
         origin: `${start.lng}, ${start.lat}`,
         destination: `${destination.lng}, ${destination.lat}`,
         waypoints: waypointsParam,
-        priority: "TIME"
+        priority
       }
     });
 
@@ -39,15 +45,12 @@ export const fetchRoute = async (
     }
 
     const { summary, sections } = response.data.routes[0];
+    const { duration, distance } = summary;
 
     if (!window.kakao || !window.kakao.maps) {
       console.error("카카오 지도 API가 로드 되지 않았습니다.");
       return null;
     }
-
-    // const vertexes = response.data.routes[0].sections.flatMap((section) =>
-    //   section.roads.flatMap((road) => road.vertexes)
-    // );
 
     // 경로 좌표 변환하기
     const path = sections.flatMap((section) =>
@@ -60,12 +63,14 @@ export const fetchRoute = async (
       })
     );
 
+    console.log("예상 소요 시간 (분)", duration);
+    console.log("예상 이동 거리 (m)", distance);
+
     console.log("📌 [Polyline 좌표]:", path);
     console.log("✅ 경로 탐색 응답 데이터:", response.data);
     console.log("🚗 [출발지-목적지-경유지 좌표] :", response.data.routes[0].summary);
 
-    return { summary, path };
-    //return response.data;
+    return { summary, path, duration, distance };
   } catch (error) {
     console.error("경로 탐색 실패", error);
     return null;

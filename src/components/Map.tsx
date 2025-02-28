@@ -15,6 +15,8 @@ const Map = () => {
   const { map, setMap, isMapLoaded, setIsMapLoaded } = useMapStore();
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
 
+  const [priority, setPriority] = useState<"TIME" | "DISTANCE">("TIME");
+
   // 모달 위치 업데이트하는 함수
   const updateModalPosition = useCallback(
     (company: Company) => {
@@ -66,10 +68,10 @@ const Map = () => {
 
   const start = { lat: location.latitude, lng: location.longitude };
   const waypoints = [
-    { lat: 37.6, lng: 126.992 },
-    { lat: 37.5765, lng: 126.985 }
+    { lat: 37.5154133, lng: 126.9071288 }, // 영등포역
+    { lat: 37.52626250000001, lng: 126.8959528 } // 영등포구청
   ];
-  const destination = { lat: 37.5665, lng: 127.012 };
+  const destination = { lat: 37.521638, lng: 126.9049865 }; // 영등포시장역
 
   return (
     <div className="relative">
@@ -78,7 +80,20 @@ const Map = () => {
         {!isMapLoaded && <p className="absolute inset-0 flex items-center justify-center">🗺 지도 로드 중...</p>}
       </div>
 
-      {map && <RoutePath map={map} start={start} waypoints={waypoints} destination={destination} />}
+      {/* 최단 시간 vs 최단 거리 선택 옵션 */}
+      <div className="absolute left-4 top-4 z-50 rounded bg-white p-2 shadow dark:text-black">
+        <label className="text-sm font-semibold">경로 기준:</label>
+        <select
+          className="ml-2 rounded border p-1"
+          value={priority}
+          onChange={(e) => setPriority(e.target.value as "TIME" | "DISTANCE")}
+        >
+          <option value="TIME">최단 시간</option>
+          <option value="DISTANCE">최단 거리</option>
+        </select>
+      </div>
+
+      {map && <RoutePath map={map} start={start} waypoints={waypoints} destination={destination} priority={priority} />}
 
       {/* 마커 클릭 시 오버레이 모달 */}
       {selectedCompany && modalPosition.top !== -9999 && modalPosition.left !== -9999 && (

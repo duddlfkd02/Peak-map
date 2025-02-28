@@ -7,17 +7,21 @@ interface RoutePathProps {
   start: { lat: number; lng: number };
   waypoints: { lat: number; lng: number }[];
   destination: { lat: number; lng: number };
+  priority: "TIME" | "DISTANCE";
 }
 
-const RoutePath: React.FC<RoutePathProps> = ({ map, start, waypoints, destination }) => {
+const RoutePath: React.FC<RoutePathProps> = ({ map, start, waypoints, destination, priority }) => {
   const [, setRoutePath] = useState<kakao.maps.LatLng[]>([]); // routePath 미사용으로 제거
+  const [routeInfo, setRouteInfo] = useState<{ duration: number; distance: number } | null>(null);
   const polylineRef = useRef<kakao.maps.Polyline | null>(null);
 
   useEffect(() => {
     if (!map || !start || !destination || waypoints.length === 0) return;
 
-    fetchRoute(start, waypoints, destination).then((response) => {
+    fetchRoute(start, waypoints, destination, priority).then((response) => {
       if (!response) return;
+      console.log("📌 [routeInfo 업데이트]:", response.duration, response.distance);
+      setRouteInfo({ duration: response.duration, distance: response.distance }); // ✅ 상태 저장
 
       setRoutePath(response.path);
 
@@ -37,11 +41,21 @@ const RoutePath: React.FC<RoutePathProps> = ({ map, start, waypoints, destinatio
 
       polylineRef.current.setMap(map);
     });
-  }, [map, start, waypoints, destination]);
+  }, [map, start, waypoints, destination, priority]);
 
   if (!map) return null;
 
-  return null;
+  return (
+    <div>
+      {routeInfo && (
+        <div className="absolute left-52 top-4 z-50 rounded bg-white p-2 text-sm font-semibold shadow dark:text-black">
+          ⏳ 예상 소요 시간: {Math.round(routeInfo.duration / 60)}분
+          <br />
+          📏 예상 이동 거리: {(routeInfo.distance / 1000).toFixed(1)}km
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default RoutePath;

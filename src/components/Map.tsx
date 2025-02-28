@@ -6,6 +6,7 @@ import { useCompanyStore } from "../stores/useCompanyStore";
 import { useMapStore } from "../stores/useMapStore";
 import { loadKakaoMap } from "../utils/kakaoMap";
 import useMapMarkers from "../hooks/useMapMarkers";
+import RoutePath from "./RoutePath";
 
 const Map = () => {
   const { location, error } = useLocation();
@@ -48,8 +49,6 @@ const Map = () => {
 
   // 지도 API 로드 (최초 1회 실행)
   useEffect(() => {
-    if (!location || !mapRef.current) return;
-
     loadKakaoMap(initializeMap);
   }, [initializeMap]);
 
@@ -63,12 +62,23 @@ const Map = () => {
   // 마커 추가 로직 실행
   useMapMarkers();
 
+  if (!location) return <p className="text-center">🗺 지도 로드 중...</p>;
+
+  const start = { lat: location.latitude, lng: location.longitude };
+  const waypoints = [
+    { lat: 37.6, lng: 126.992 },
+    { lat: 37.5765, lng: 126.985 }
+  ];
+  const destination = { lat: 37.5665, lng: 127.012 };
+
   return (
     <div className="relative">
       {error && <p>{error}</p>}
       <div ref={mapRef} className="h-screen w-full">
         {!isMapLoaded && <p className="absolute inset-0 flex items-center justify-center">🗺 지도 로드 중...</p>}
       </div>
+
+      {map && <RoutePath map={map} start={start} waypoints={waypoints} destination={destination} />}
 
       {/* 마커 클릭 시 오버레이 모달 */}
       {selectedCompany && modalPosition.top !== -9999 && modalPosition.left !== -9999 && (

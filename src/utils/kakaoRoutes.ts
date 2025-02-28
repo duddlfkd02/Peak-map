@@ -2,7 +2,7 @@ import axios from "axios";
 import { RouteResponse } from "../types/route";
 import { kakao } from "../types/kakao";
 
-const KAKAO_REST_API_KEY = "9e88abc17dce1124ca94209ccda5bc39";
+const KAKAO_REST_API_KEY = import.meta.env.VITE_KAKAO_REST_API_KEY;
 const WAYPOINTS_URL = "https://apis-navi.kakaomobility.com/v1/directions";
 
 /**
@@ -63,12 +63,12 @@ export const fetchRoute = async (
       })
     );
 
-    console.log("예상 소요 시간 (분)", duration);
-    console.log("예상 이동 거리 (m)", distance);
+    // console.log("예상 소요 시간 (분)", duration);
+    // console.log("예상 이동 거리 (m)", distance);
 
-    console.log("📌 [Polyline 좌표]:", path);
-    console.log("✅ 경로 탐색 응답 데이터:", response.data);
-    console.log("🚗 [출발지-목적지-경유지 좌표] :", response.data.routes[0].summary);
+    // console.log("📌 [Polyline 좌표]:", path);
+    // console.log("✅ 경로 탐색 응답 데이터:", response.data);
+    // console.log("🚗 [출발지-목적지-경유지 좌표] :", response.data.routes[0].summary);
 
     return { summary, path, duration, distance };
   } catch (error) {

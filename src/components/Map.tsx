@@ -7,6 +7,7 @@ import { useMapStore } from "../stores/useMapStore";
 import { loadKakaoMap } from "../utils/kakaoMap";
 import useMapMarkers from "../hooks/useMapMarkers";
 import RoutePath from "./RoutePath";
+import Button from "./common/Button";
 
 const Map = () => {
   const { location, error } = useLocation();
@@ -16,6 +17,12 @@ const Map = () => {
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
 
   const [priority, setPriority] = useState<"TIME" | "DISTANCE">("TIME");
+  const [isRouteVisible, setIsRouteVisible] = useState(false);
+  const [routeData, setRouteData] = useState<{
+    start: { lat: number; lng: number };
+    waypoints: { lat: number; lng: number }[];
+    destination: { lat: number; lng: number };
+  } | null>(null);
 
   // 모달 위치 업데이트하는 함수
   const updateModalPosition = useCallback(
@@ -66,12 +73,25 @@ const Map = () => {
 
   if (!location) return <p className="text-center">🗺 지도 로드 중...</p>;
 
-  const start = { lat: location.latitude, lng: location.longitude };
-  const waypoints = [
-    { lat: 37.5154133, lng: 126.9071288 }, // 영등포역
-    { lat: 37.52626250000001, lng: 126.8959528 } // 영등포구청
-  ];
-  const destination = { lat: 37.521638, lng: 126.9049865 }; // 영등포시장역
+  // 경로 탐색 버튼 클릭 시 동작 (경로 표시/숨김)
+  const handleRouteToggle = () => {
+    if (isRouteVisible) {
+      // 경로 숨기기
+      setIsRouteVisible(false);
+      setRouteData(null);
+    } else {
+      // 경로 탐색 설정
+      setRouteData({
+        start: { lat: location.latitude, lng: location.longitude },
+        waypoints: [
+          { lat: 37.5154133, lng: 126.9071288 },
+          { lat: 37.52626250000001, lng: 126.8959528 }
+        ],
+        destination: { lat: 37.521638, lng: 126.9049865 }
+      });
+      setIsRouteVisible(true);
+    }
+  };
 
   return (
     <div className="relative">
@@ -80,7 +100,7 @@ const Map = () => {
         {!isMapLoaded && <p className="absolute inset-0 flex items-center justify-center">🗺 지도 로드 중...</p>}
       </div>
 
-      {/* 최단 시간 vs 최단 거리 선택 옵션 */}
+      {/* 최단 시간 ,거리 선택 옵션 */}
       <div className="absolute left-4 top-4 z-50 rounded bg-white p-2 shadow dark:text-black">
         <label className="text-sm font-semibold">경로 기준:</label>
         <select
@@ -93,7 +113,23 @@ const Map = () => {
         </select>
       </div>
 
-      {map && <RoutePath map={map} start={start} waypoints={waypoints} destination={destination} priority={priority} />}
+      {/* 경로 탐색 버튼 */}
+      <Button
+        label={isRouteVisible ? "경로 숨기기" : "경로 탐색"}
+        onClick={handleRouteToggle}
+        className="absolute right-3 top-5 z-50"
+      />
+
+      {/* 버튼 클릭 시 경로 표시 */}
+      {map && isRouteVisible && routeData && (
+        <RoutePath
+          map={map}
+          start={routeData.start}
+          waypoints={routeData.waypoints}
+          destination={routeData.destination}
+          priority={priority}
+        />
+      )}
 
       {/* 마커 클릭 시 오버레이 모달 */}
       {selectedCompany && modalPosition.top !== -9999 && modalPosition.left !== -9999 && (

@@ -20,8 +20,7 @@ const RoutePath: React.FC<RoutePathProps> = ({ map, start, waypoints, destinatio
 
     fetchRoute(start, waypoints, destination, priority).then((response) => {
       if (!response) return;
-      console.log("📌 [routeInfo 업데이트]:", response.duration, response.distance);
-      setRouteInfo({ duration: response.duration, distance: response.distance }); // ✅ 상태 저장
+      setRouteInfo({ duration: response.duration, distance: response.distance });
 
       setRoutePath(response.path);
 
@@ -31,7 +30,7 @@ const RoutePath: React.FC<RoutePathProps> = ({ map, start, waypoints, destinatio
       }
 
       // 새로운 Polyline 생성 및 추가
-      polylineRef.current = new window.kakao.maps.Polyline({
+      const polyline = new window.kakao.maps.Polyline({
         path: response.path,
         strokeWeight: 5,
         strokeColor: "#6A31F6",
@@ -39,8 +38,17 @@ const RoutePath: React.FC<RoutePathProps> = ({ map, start, waypoints, destinatio
         strokeStyle: "solid"
       });
 
-      polylineRef.current.setMap(map);
+      polyline.setMap(map);
+      polylineRef.current = polyline;
     });
+
+    // 클린업 함수
+    return () => {
+      if (polylineRef.current) {
+        polylineRef.current.setMap(null);
+        polylineRef.current = null;
+      }
+    };
   }, [map, start, waypoints, destination, priority]);
 
   if (!map) return null;

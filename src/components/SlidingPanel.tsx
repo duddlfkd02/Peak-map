@@ -46,7 +46,7 @@ const SlidingPanel = () => {
   return (
     <div
       ref={panelRef}
-      className={`fixed bottom-0 left-0 right-0 z-50 w-full overflow-hidden rounded-t-xl bg-white shadow-lg transition-transform duration-300 ease-in-out ${
+      className={`fixed bottom-0 left-0 right-0 z-50 w-full overflow-hidden rounded-t-xl bg-white shadow-md dark:bg-darkGray dark:shadow-xl transition-transform duration-300 ease-in-out ${
         isPanelOpen ? "translate-y-0" : "translate-y-full"
       }`}
       style={{ height: `${panelHeight}vh` }}
@@ -59,15 +59,16 @@ const SlidingPanel = () => {
     >
       {/* 패널 핸들 (드래그) */}
       <div className="flex h-12 w-full cursor-pointer items-center justify-center">
-        <div className="h-1.5 w-12 rounded-full bg-gray-300"></div>
+        <div className="h-1.5 w-12 rounded-full bg-gray-300 dark:bg-gray-500"></div>
       </div>
-
+  
       {/* 패널 내부 컨텐츠 */}
-      <div className="h-full overflow-y-auto px-4 pb-4">
+      <div className="h-full overflow-y-auto px-4 pb-4 dark:text-lightGray">
         {selectedCompany ? <CompanyDetail /> : <InfiniteCompanyList />}
       </div>
     </div>
   );
+  
 };
 
 export default SlidingPanel;

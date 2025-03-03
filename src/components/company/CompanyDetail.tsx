@@ -10,16 +10,17 @@ const CompanyDetail = () => {
   if (!company) return null;
 
   return (
-    <div className="space-y-2 p-2">
-      <h2 className="text-xl font-bold">{company.name}</h2>
-      <p className="text-sm text-[#333333]">{company.address}</p>
+    <div className="space-y-4 rounded-lg  p-4  dark:bg-darkGray border dark:text-lightGray  dark:border-gray-500 mt-4">
+      <h2 className="text-xl font-bold text-black dark:text-lightGray">{company.name}</h2>
+      <p className="text-sm text-gray-700 dark:text-gray-300">{company.address}</p>
+
       <div className="space-y-2">
-        <p className="flex gap-2 text-sm">
-          <img src={phone} alt="전화 아이콘" />
+        <p className="flex items-center gap-2 text-sm text-black dark:text-lightGray">
+          <img src={phone} alt="전화 아이콘" className="h-4 w-4" />
           {company.phone}
         </p>
-        <p className="flex gap-2 text-sm">
-          <img src={web} alt="웹 아이콘" />
+        <p className="flex items-center gap-2 text-sm text-black dark:text-lightGray">
+          <img src={web} alt="웹 아이콘" className="h-4 w-4" />
           {company.website}
         </p>
       </div>
@@ -29,7 +30,7 @@ const CompanyDetail = () => {
           <Button
             label="전화하기"
             onClick={() => (window.location.href = `tel:${company.phone}`)}
-            className="text-sm"
+            className="text-sm bg-primary text-white hover:bg-opacity-90"
           />
         )}
         {company.website && (
@@ -37,7 +38,7 @@ const CompanyDetail = () => {
             label="홈페이지"
             variant="secondary"
             onClick={() => window.open(company.website, "_blank")}
-            className="text-sm"
+            className="text-sm hover:bg-opacity-90"
           />
         )}
 
@@ -45,10 +46,16 @@ const CompanyDetail = () => {
           label="공유하기"
           variant="outline"
           onClick={() => window.open(company.website, "_blank")}
-          className="text-sm"
+          className="text-sm border-gray-500 text-black hover:bg-gray-200 dark:border-gray-600 dark:text-lightGray dark:hover:bg-gray-700"
         />
       </div>
-      <Button label="닫기" variant="outline" onClick={() => setSelectedCompany(null)} className="w-full" />
+
+      <Button
+        label="닫기"
+        variant="outline"
+        onClick={() => setSelectedCompany(null)}
+        className="w-full border-gray-500 text-black hover:bg-gray-200 dark:border-gray-600 dark:text-lightGray dark:hover:bg-gray-700"
+      />
     </div>
   );
 };

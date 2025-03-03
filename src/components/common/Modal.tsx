@@ -14,21 +14,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, company, modalPosition }
   return (
     <div className="fixed inset-0 z-50" onClick={onClose}>
       <div
-        className="pointer-events-auto absolute w-64 rounded-lg bg-white p-3 shadow-lg"
+        className="pointer-events-auto absolute md:w-64 w-48 rounded-lg bg-white p-3 shadow-lg dark:bg-darkGray"
         style={{ top: `${modalPosition.top}px`, left: `${modalPosition.left}px` }}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-xl font-semibold">{company.name}</h2>
-        <p className="text-gray-700">{company.address}</p>
-
-        <div className="mt-4 flex space-x-4">
-          {company.phone && <Button label="전화하기" onClick={() => (window.location.href = `tel:${company.phone}`)} />}
+        <h2 className=" font-semibold md:text-xl text-lg">{company.name}</h2>
+        <p className="text-sm text-gray-700 dark:text-lightGray">{company.address}</p>
+        <div className="mt-4 flex space-x-4 ">
+          {company.phone && <Button label="전화하기" onClick={() => (window.location.href = `tel:${company.phone}`)} className="md:px-4 md:py-2 px-2 py-1 md:text-md text-sm"/>}
           {company.website && (
-            <Button label="홈페이지" variant="secondary" onClick={() => window.open(company.website, "_blank")} />
+            <Button label="홈페이지" variant="secondary" onClick={() => window.open(company.website, "_blank")} className=" border-gray-500 text-black hover:bg-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 md:px-4 md:py-2 px-2 py-2 md:text-md text-sm"/>
           )}
         </div>
 
-        <Button label="닫기" variant="outline" onClick={onClose} className="mt-4 w-full" />
+        {/* UI 수정 필요 */}
+        {/* <Button label="닫기" variant="outline" onClick={onClose} className="mt-4 w-full border-gray-500 text-black hover:bg-gray-200 dark:border-gray-600 dark:text-lightGray dark:hover:bg-gray-700 md:px-4 md:py-2 px-2  md:text-md text-sm" /> */}
       </div>
     </div>
   );

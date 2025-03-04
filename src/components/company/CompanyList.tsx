@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useCompanyStore } from "../../stores/useCompanyStore";
 import Pagination from "../common/Pagination";
-import { mockCompanies } from "../../mocks/companies";
+import { mockCompanies } from "../../mocks/companies_mock";
+// import { mockCompanies } from "../../mocks/companies";
 import { Company } from "../../types";
 import CompanyCard from "./CompanyCard";
 
@@ -30,7 +31,7 @@ const CompanyList = () => {
   );
 
   return (
-    <div className="dark:bg-darkGray rounded-lg bg-white p-4">
+    <div className="rounded-lg bg-white p-4 dark:bg-darkGray">
       <div className="flex-1 overflow-y-auto">
         <ul className="space-y-4">
           {currentCompanies.map((company) => (

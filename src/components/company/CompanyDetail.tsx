@@ -10,7 +10,7 @@ const CompanyDetail = () => {
   if (!company) return null;
 
   return (
-    <div className="space-y-4 rounded-lg  p-4  dark:bg-darkGray border dark:text-lightGray  dark:border-gray-500 mt-4">
+    <div className="mt-4 space-y-4 rounded-lg border p-4 dark:border-gray-500 dark:bg-darkGray dark:text-lightGray">
       <h2 className="text-xl font-bold text-black dark:text-lightGray">{company.name}</h2>
       <p className="text-sm text-gray-700 dark:text-gray-300">{company.address}</p>
 
@@ -30,14 +30,18 @@ const CompanyDetail = () => {
           <Button
             label="전화하기"
             onClick={() => (window.location.href = `tel:${company.phone}`)}
-            className="text-sm bg-primary text-white hover:bg-opacity-90"
+            className="bg-primary text-sm text-white hover:bg-opacity-90"
           />
         )}
         {company.website && (
           <Button
             label="홈페이지"
             variant="secondary"
-            onClick={() => window.open(company.website, "_blank")}
+            onClick={() => {
+              if (company.website) {
+                window.open(company.website, "_blank");
+              }
+            }}
             className="text-sm hover:bg-opacity-90"
           />
         )}
@@ -45,8 +49,12 @@ const CompanyDetail = () => {
         <Button
           label="공유하기"
           variant="outline"
-          onClick={() => window.open(company.website, "_blank")}
-          className="text-sm border-gray-500 text-black hover:bg-gray-200 dark:border-gray-600 dark:text-lightGray dark:hover:bg-gray-700"
+          onClick={() => {
+            if (company.website) {
+              window.open(company.website, "_blank");
+            }
+          }}
+          className="border-gray-500 text-sm text-black hover:bg-gray-200 dark:border-gray-600 dark:text-lightGray dark:hover:bg-gray-700"
         />
       </div>
 

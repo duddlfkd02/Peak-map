@@ -10,19 +10,19 @@ interface CompanyCardProps {
 const CompanyCard = ({ company, onSelect }: CompanyCardProps) => {
   return (
     <li
-      className="bg-lightGray dark:bg-primary dark:hover:bg-primary/80 cursor-pointer rounded-md border border-transparent p-4 transition hover:border-gray-300 hover:bg-gray-200 dark:hover:border-transparent"
+      className="cursor-pointer rounded-md border border-transparent bg-lightGray p-4 transition hover:border-gray-300 hover:bg-gray-200 dark:bg-primary dark:hover:border-transparent dark:hover:bg-primary/80"
       onClick={() => onSelect(company)}
     >
       <h3 className="text-md font-bold text-black dark:text-white">
-        {company.name} <span className="dark:text-lightGray text-sm text-gray-500">{company.category}</span>
+        {company.name} <span className="text-sm text-gray-500 dark:text-lightGray">{company.department}</span>
       </h3>
-      <p className="text-darkGray dark:text-lightGray mb-2 text-xs">{company.address}</p>
+      <p className="mb-2 text-xs text-darkGray dark:text-lightGray">{company.address}</p>
       <div className="space-y-2">
-        <p className="text-darkGray dark:text-lightGray flex gap-2 text-sm">
+        <p className="flex gap-2 text-sm text-darkGray dark:text-lightGray">
           <img src={phone} alt="전화 아이콘" />
           {company.phone}
         </p>
-        <p className="text-darkGray dark:text-lightGray flex gap-2 text-sm">
+        <p className="flex gap-2 text-sm text-darkGray dark:text-lightGray">
           <img src={web} alt="웹 아이콘" />
           {company.website}
         </p>

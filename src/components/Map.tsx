@@ -8,6 +8,7 @@ import { getLatLngFromAddress, loadKakaoMap } from "../utils/kakaoMap";
 import useMapMarkers from "../hooks/useMapMarkers";
 import RoutePath from "./RoutePath";
 import Button from "./common/Button";
+import LocationButton from "./LocationButton";
 
 const Map = () => {
   const { location, error } = useLocation();
@@ -172,6 +173,9 @@ const Map = () => {
           modalPosition={modalPosition}
         />
       )}
+      <div className="absolute bottom-32 right-4 z-50">
+        <LocationButton />
+      </div>
     </div>
   );
 };

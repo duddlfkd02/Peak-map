@@ -20,11 +20,11 @@ const CompanyCard = ({ company, onSelect }: CompanyCardProps) => {
       <div className="space-y-2">
         <p className="flex gap-2 text-sm text-darkGray dark:text-lightGray">
           <img src={phone} alt="전화 아이콘" />
-          {company.phone}
+          {company.phone || <span className="text-gray-400">전화번호 없음</span>}
         </p>
         <p className="flex gap-2 text-sm text-darkGray dark:text-lightGray">
           <img src={web} alt="웹 아이콘" />
-          {company.website}
+          {company.website || <span className="text-gray-400">웹사이트 없음</span>}
         </p>
       </div>
     </li>

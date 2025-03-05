@@ -17,33 +17,40 @@ const CompanyDetail = () => {
       <div className="space-y-2">
         <p className="flex items-center gap-2 text-sm text-black dark:text-lightGray">
           <img src={phone} alt="전화 아이콘" className="h-4 w-4" />
-          {company.phone}
+          {company.phone || <span className="text-gray-400">전화번호 없음</span>}
         </p>
         <p className="flex items-center gap-2 text-sm text-black dark:text-lightGray">
           <img src={web} alt="웹 아이콘" className="h-4 w-4" />
-          {company.website}
+          {company.website ? (
+            <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
+              {company.website}
+            </a>
+          ) : (
+            <span className="text-gray-400">웹사이트 없음</span>
+          )}
         </p>
       </div>
 
       <div className="flex justify-between">
-        {company.phone && (
+        {company.phone ? (
           <Button
             label="전화하기"
             onClick={() => (window.location.href = `tel:${company.phone}`)}
             className="bg-primary text-sm text-white hover:bg-opacity-90"
           />
+        ) : (
+          <Button label="번호 없음" className="cursor-not-allowed bg-gray-300 text-sm text-white" disabled />
         )}
-        {company.website && (
+
+        {company.website ? (
           <Button
             label="홈페이지"
             variant="secondary"
-            onClick={() => {
-              if (company.website) {
-                window.open(company.website, "_blank");
-              }
-            }}
+            onClick={() => window.open(company.website ?? "", "_blank")}
             className="text-sm hover:bg-opacity-90"
           />
+        ) : (
+          <Button label="주소 없음" variant="secondary" className="cursor-not-allowed bg-gray-300 text-sm" disabled />
         )}
 
         <Button

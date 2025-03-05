@@ -4,7 +4,7 @@ import Modal from "./common/Modal";
 import { Company } from "../types";
 import { useCompanyStore } from "../stores/useCompanyStore";
 import { useMapStore } from "../stores/useMapStore";
-import { loadKakaoMap } from "../utils/kakaoMap";
+import { getLatLngFromAddress, loadKakaoMap } from "../utils/kakaoMap";
 import useMapMarkers from "../hooks/useMapMarkers";
 import RoutePath from "./RoutePath";
 import Button from "./common/Button";
@@ -12,7 +12,7 @@ import Button from "./common/Button";
 const Map = () => {
   const { location, error } = useLocation();
   const mapRef = useRef<HTMLDivElement>(null);
-  const { selectedCompany, setSelectedCompany } = useCompanyStore();
+  const { companies, setCompanies, selectedCompany, setSelectedCompany } = useCompanyStore();
   const { map, setMap, isMapLoaded, setIsMapLoaded } = useMapStore();
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
 
@@ -58,8 +58,37 @@ const Map = () => {
 
   // 지도 API 로드 (최초 1회 실행)
   useEffect(() => {
-    loadKakaoMap(initializeMap);
+    loadKakaoMap(() => {
+      console.log("📌 카카오 지도 API 로드 완료 후 initializeMap 실행!");
+      initializeMap();
+    });
   }, [initializeMap]);
+
+  // 기업의 위도/경도를 변환하여 저장하는 로직 추가
+  useEffect(() => {
+    if (!map) {
+      console.error("카카오 지도 API가 아직 로드되지 않았습니다.");
+      return;
+    }
+
+    const fetchLatLng = async () => {
+      const updatedCompanies: Company[] = await Promise.all(
+        companies.map(async (company) => {
+          if (company.latitude && company.longitude) return company;
+          const coords = await getLatLngFromAddress(company.address);
+          return {
+            ...company,
+            latitude: coords.latitude ?? company.latitude,
+            longitude: coords.longitude ?? company.longitude
+          };
+        })
+      );
+
+      setCompanies(updatedCompanies);
+    };
+
+    fetchLatLng();
+  }, [map]);
 
   // 기업 리스트 클릭 시 지도 이동 + 모달 위치 업데이트
   useEffect(() => {

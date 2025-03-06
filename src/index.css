@@ -18,3 +18,10 @@ html {
 html.dark {
   @apply bg-darkGray text-lightGray;
 }
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}

@@ -8,7 +8,7 @@ import logoblack from "./assets/images/logoblack.svg";
 function App() {
   return (
     <Router>
-      <div className="min-h-screen">
+      <div className="h-screen">
         <header className="flex justify-between bg-white p-4 shadow-md dark:bg-darkGray">
           <div>
             <h2>

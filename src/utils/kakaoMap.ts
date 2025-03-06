@@ -60,6 +60,17 @@ export const loadKakaoMap = (callback: () => void) => {
     callback();
     return;
   }
+
+  if (document.getElementById("kakao-map-script")) {
+    const checkReady = setInterval(() => {
+      if (window.kakao?.maps) {
+        clearInterval(checkReady);
+        callback();
+      }
+    }, 300);
+    return;
+  }
+
   const kakaoApiKey = import.meta.env.VITE_KAKAO_API_KEY;
   const script = document.createElement("script");
   script.id = "kakao-map-script";

@@ -6,15 +6,16 @@ import { useCompanyStore } from "../stores/useCompanyStore";
 import { useMapStore } from "../stores/useMapStore";
 import { getLatLngFromAddress, loadKakaoMap } from "../utils/kakaoMap";
 import useMapMarkers from "../hooks/useMapMarkers";
-import RoutePath from "./RoutePath";
-import Button from "./common/Button";
+import RoutePath from "./Route/RoutePath";
+import RouteOptions from "./Route/RouteOptions";
 import LocationButton from "./LocationButton";
+import LoadingSpinner from "./common/LoadingSpinner";
 
 const Map = () => {
   const { location, error } = useLocation();
   const mapRef = useRef<HTMLDivElement>(null);
   const { companies, setCompanies, selectedCompany, setSelectedCompany } = useCompanyStore();
-  const { map, setMap, isMapLoaded, setIsMapLoaded } = useMapStore();
+  const { map, setMap, setIsMapLoaded } = useMapStore();
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
 
   const [priority, setPriority] = useState<"TIME" | "DISTANCE">("TIME");
@@ -24,6 +25,20 @@ const Map = () => {
     waypoints: { lat: number; lng: number }[];
     destination: { lat: number; lng: number };
   } | null>(null);
+
+  // 기본 스크롤 트리거 방지
+  useEffect(() => {
+    const preventScroll = (event: WheelEvent) => {
+      if (mapRef.current && mapRef.current.contains(event.target as Node)) {
+        event.preventDefault();
+      }
+    };
+    window.addEventListener("wheel", preventScroll, { passive: false });
+
+    return () => {
+      window.removeEventListener("wheel", preventScroll);
+    };
+  });
 
   // 모달 위치 업데이트하는 함수
   const updateModalPosition = useCallback(
@@ -101,7 +116,12 @@ const Map = () => {
   // 마커 추가 로직 실행
   useMapMarkers();
 
-  if (!location) return <p className="text-center">🗺 지도 로드 중...</p>;
+  if (!location)
+    return (
+      <div className="flex h-screen flex-col items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
 
   // 경로 탐색 버튼 클릭 시 동작 (경로 표시/숨김)
   const handleRouteToggle = () => {
@@ -126,29 +146,25 @@ const Map = () => {
   return (
     <div className="relative">
       {error && <p>{error}</p>}
-      <div ref={mapRef} className="h-screen w-full">
-        {!isMapLoaded && <p className="absolute inset-0 flex items-center justify-center">🗺 지도 로드 중...</p>}
-      </div>
+      <div ref={mapRef} className="h-screen w-full"></div>
 
-      {/* 최단 시간 ,거리 선택 옵션 */}
-      <div className="absolute left-4 top-4 z-50 rounded bg-white p-2 shadow dark:text-black">
-        <label className="text-sm font-semibold">경로 기준:</label>
-        <select
-          className="ml-2 rounded border p-1"
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as "TIME" | "DISTANCE")}
-        >
-          <option value="TIME">최단 시간</option>
-          <option value="DISTANCE">최단 거리</option>
-        </select>
-      </div>
-
-      {/* 경로 탐색 버튼 */}
-      <Button
-        label={isRouteVisible ? "경로 숨기기" : "경로 탐색"}
-        onClick={handleRouteToggle}
-        className="absolute right-3 top-5 z-50"
+      <RouteOptions
+        onRouteToggle={handleRouteToggle}
+        isRouteVisible={isRouteVisible}
+        priority={priority}
+        setPriority={setPriority}
       />
+
+      {/* 버튼 클릭 시 경로 표시 */}
+      {map && isRouteVisible && routeData && (
+        <RoutePath
+          map={map}
+          start={routeData.start}
+          waypoints={routeData.waypoints}
+          destination={routeData.destination}
+          priority={priority}
+        />
+      )}
 
       {/* 버튼 클릭 시 경로 표시 */}
       {map && isRouteVisible && routeData && (

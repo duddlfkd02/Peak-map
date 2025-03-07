@@ -30,8 +30,8 @@ const CompanyList = () => {
   );
 
   return (
-    <div className="rounded-lg bg-white p-4 dark:bg-darkGray">
-      <div className="flex-1 overflow-y-auto">
+    <div className="flex min-h-[600px] flex-col justify-between dark:bg-darkGray">
+      <div className="flex-1">
         <ul className="space-y-4">
           {currentCompanies.map((company) => (
             <CompanyCard key={company.id} company={company} onSelect={handleSelectCompany} />

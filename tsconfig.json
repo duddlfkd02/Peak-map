@@ -11,7 +11,8 @@
     "lib": ["ES2023", "DOM"],
     "module": "ESNext",
     "isolatedModules": true,
-    "noEmit": true
+    "noEmit": true,
+    "types": ["kakao.maps.d.ts"]
   },
-  "include": ["src", "types"]
+  "include": ["src", "types/**/*.d.ts"]
 }

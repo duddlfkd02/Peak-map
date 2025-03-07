@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchRoute } from "../../utils/kakaoRoutes";
-import { kakao } from "../../types/kakao";
 
 interface RoutePathProps {
   map: kakao.maps.Map | null; // 지도 객체

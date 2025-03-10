@@ -30,16 +30,16 @@ const CompanyList = () => {
   );
 
   return (
-    <div className="flex min-h-[600px] flex-col justify-between dark:bg-darkGray">
-      <div className="flex-1">
+    <div className="flex h-[calc(100vh-80px)] flex-col dark:bg-darkGray">
+      <div className="flex-1 overflow-y-auto">
         <ul className="space-y-4">
           {currentCompanies.map((company) => (
             <CompanyCard key={company.id} company={company} onSelect={handleSelectCompany} />
           ))}
         </ul>
-      </div>
-      <div className="mt-4 flex justify-center pt-4 dark:border-gray-700">
-        <Pagination currentPage={currentPage} totalPage={totalPage} onPageChage={setCurrentPage} />
+        <div className="sticky bottom-0 bg-white py-4 dark:bg-darkGray">
+          <Pagination currentPage={currentPage} totalPage={totalPage} onPageChage={setCurrentPage} />
+        </div>
       </div>
     </div>
   );

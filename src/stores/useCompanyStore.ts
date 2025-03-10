@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { Company } from "../types";
 import { devtools } from "zustand/middleware";
-import { mockCompanies } from "../mocks/companies";
+import { mockCompanies } from "../mocks/companies_mock";
 
 interface CompanyState {
   companies: Company[];

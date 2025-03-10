@@ -9,7 +9,7 @@ const PcLayout = () => {
   return (
     <div className="relative flex h-screen">
       {/* 왼쪽: 기업 리스트 */}
-      <div className="w-[350px] bg-white p-4 dark:bg-darkGray">
+      <div className="h-[calc(100vh-80px)] w-[350px] overflow-hidden bg-white p-4 dark:bg-darkGray">
         <CompanyList />
       </div>
 

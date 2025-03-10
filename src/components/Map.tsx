@@ -53,7 +53,7 @@ const Map = () => {
 
         const mapBounds = mapRef.current?.getBoundingClientRect();
         if (mapBounds) {
-          setModalPosition({ top: point.y + mapBounds.top, left: point.x + mapBounds.left });
+          setModalPosition({ top: point.y - 220 + mapBounds.top, left: point.x + mapBounds.left });
         }
       }, 200);
     },
@@ -189,7 +189,7 @@ const Map = () => {
           modalPosition={modalPosition}
         />
       )}
-      <div className="absolute bottom-32 right-4 z-50">
+      <div className="absolute right-3 top-20 z-50">
         <LocationButton />
       </div>
     </div>

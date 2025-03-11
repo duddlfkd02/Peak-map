@@ -10,6 +10,7 @@ import RoutePath from "./Route/RoutePath";
 import RouteOptions from "./Route/RouteOptions";
 import LocationButton from "./LocationButton";
 import LoadingSpinner from "./common/LoadingSpinner";
+import Button from "./common/Button";
 
 const Map = () => {
   const { location, error } = useLocation();
@@ -19,12 +20,14 @@ const Map = () => {
   const [modalPosition, setModalPosition] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
 
   const [priority, setPriority] = useState<"TIME" | "DISTANCE">("TIME");
-  const [isRouteVisible, setIsRouteVisible] = useState(false);
+  const [, setIsRouteVisible] = useState(false);
   const [routeData, setRouteData] = useState<{
     start: { lat: number; lng: number };
     waypoints: { lat: number; lng: number }[];
     destination: { lat: number; lng: number };
   } | null>(null);
+  const [waypoints, setWaypoints] = useState<{ lat: number; lng: number }[]>([]);
+  const [destination, setDestination] = useState<{ lat: number; lng: number } | null>(null);
 
   // 기본 스크롤 트리거 방지
   useEffect(() => {
@@ -39,6 +42,17 @@ const Map = () => {
       window.removeEventListener("wheel", preventScroll);
     };
   });
+  useEffect(() => {
+    if (!map || !destination || waypoints.length === 0 || !location) return;
+
+    setRouteData({
+      start: { lat: location.latitude, lng: location.longitude },
+      waypoints: waypoints,
+      destination: destination
+    });
+
+    setIsRouteVisible(true);
+  }, [waypoints, destination, location, map]);
 
   // 모달 위치 업데이트하는 함수
   const updateModalPosition = useCallback(
@@ -123,24 +137,24 @@ const Map = () => {
       </div>
     );
 
-  // 경로 탐색 버튼 클릭 시 동작 (경로 표시/숨김)
-  const handleRouteToggle = () => {
-    if (isRouteVisible) {
-      // 경로 숨기기
-      setIsRouteVisible(false);
-      setRouteData(null);
-    } else {
-      // 경로 탐색 설정
-      setRouteData({
-        start: { lat: location.latitude, lng: location.longitude },
-        waypoints: [
-          { lat: 37.5154133, lng: 126.9071288 },
-          { lat: 37.52626250000001, lng: 126.8959528 }
-        ],
-        destination: { lat: 37.521638, lng: 126.9049865 }
-      });
-      setIsRouteVisible(true);
-    }
+  // 경유지 & 목적지
+  const handleSetWaypoint = (company: Company) => {
+    alert("🚗 경유지가 추가되었습니다.");
+    setWaypoints((prev) => [...prev, { lat: company.latitude!, lng: company.longitude! }]);
+    setSelectedCompany(null);
+  };
+
+  const handleSetDestination = (company: Company) => {
+    setDestination({ lat: company.latitude!, lng: company.longitude! });
+    setSelectedCompany(null);
+  };
+
+  const handleReset = () => {
+    setWaypoints([]);
+    setDestination(null);
+    setIsRouteVisible(false);
+    setRouteData(null);
+    alert("🗑️ 경로가 초기화 되었습니다.");
   };
 
   return (
@@ -148,15 +162,10 @@ const Map = () => {
       {error && <p>{error}</p>}
       <div ref={mapRef} className="h-screen w-full"></div>
 
-      <RouteOptions
-        onRouteToggle={handleRouteToggle}
-        isRouteVisible={isRouteVisible}
-        priority={priority}
-        setPriority={setPriority}
-      />
+      <RouteOptions priority={priority} setPriority={setPriority} />
 
       {/* 버튼 클릭 시 경로 표시 */}
-      {map && isRouteVisible && routeData && (
+      {map && routeData && (
         <RoutePath
           map={map}
           start={routeData.start}
@@ -167,7 +176,7 @@ const Map = () => {
       )}
 
       {/* 버튼 클릭 시 경로 표시 */}
-      {map && isRouteVisible && routeData && (
+      {map && routeData && (
         <RoutePath
           map={map}
           start={routeData.start}
@@ -187,8 +196,11 @@ const Map = () => {
           }}
           company={selectedCompany}
           modalPosition={modalPosition}
+          onSelectWaypoint={handleSetWaypoint}
+          onSelectDestination={handleSetDestination}
         />
       )}
+      <Button label={"경로 초기화"} onClick={handleReset} className="absolute right-3 top-5 z-50" />
       <div className="absolute right-3 top-20 z-50">
         <LocationButton />
       </div>

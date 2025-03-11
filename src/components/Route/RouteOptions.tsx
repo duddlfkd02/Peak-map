@@ -1,14 +1,9 @@
-import React from "react";
-import Button from "../common/Button";
-
 interface RouteOptionsProps {
-  onRouteToggle: () => void;
-  isRouteVisible: boolean;
   priority: "TIME" | "DISTANCE";
   setPriority: (value: "TIME" | "DISTANCE") => void;
 }
 
-const RouteOptions = ({ onRouteToggle, isRouteVisible, priority, setPriority }: RouteOptionsProps) => {
+const RouteOptions = ({ priority, setPriority }: RouteOptionsProps) => {
   return (
     <>
       {/* 최단 시간 ,거리 선택 옵션 */}
@@ -23,13 +18,6 @@ const RouteOptions = ({ onRouteToggle, isRouteVisible, priority, setPriority }: 
           <option value="DISTANCE">최단 거리</option>
         </select>
       </div>
-
-      {/* 경로 탐색 버튼 */}
-      <Button
-        label={isRouteVisible ? "경로 숨기기" : "경로 탐색"}
-        onClick={onRouteToggle}
-        className="absolute right-3 top-5 z-50"
-      />
     </>
   );
 };

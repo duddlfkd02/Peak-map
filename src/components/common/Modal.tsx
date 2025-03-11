@@ -1,14 +1,26 @@
 import { Company } from "../../types";
 import Button from "./Button";
+import phone from "../../assets/images/phone ico.svg";
+import web from "../../assets/images/web ico.svg";
 
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   company: Company | null;
   modalPosition: { top: number; left: number };
+
+  onSelectWaypoint: (company: Company) => void;
+  onSelectDestination: (company: Company) => void;
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, company, modalPosition }) => {
+const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  company,
+  modalPosition,
+  onSelectWaypoint,
+  onSelectDestination
+}) => {
   if (!isOpen || !company) return null;
 
   return (
@@ -20,30 +32,26 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, company, modalPosition }
       >
         <h2 className="text-lg font-semibold md:text-xl">{company.name}</h2>
         <p className="text-sm text-gray-700 dark:text-lightGray">{company.address}</p>
-        <div className="mt-4 flex space-x-4">
+
+        {/* phone, web button */}
+        <div className="my-4 flex items-center space-x-3">
           {company.phone && (
-            <Button
-              label="전화하기"
-              onClick={() => (window.location.href = `tel:${company.phone}`)}
-              className="md:text-md px-2 py-1 text-sm md:px-4 md:py-2"
-            />
+            <button onClick={() => (window.location.href = `tel:${company.phone}`)}>
+              <img src={phone} alt="전화" className="w-6" />
+            </button>
           )}
           {company.website && (
-            <Button
-              label="홈페이지"
-              variant="secondary"
-              onClick={() => {
-                if (company.website) {
-                  window.open(company.website, "_blank");
-                }
-              }}
-              className="md:text-md border-gray-500 px-2 py-2 text-sm text-black hover:bg-gray-200 dark:border-gray-600 dark:hover:bg-gray-700 md:px-4 md:py-2"
-            />
+            <button onClick={() => company.website && window.open(company.website, "_blank")}>
+              <img src={web} alt="홈페이지" className="w-6" />
+            </button>
           )}
         </div>
 
-        {/* UI 수정 필요 */}
-        {/* <Button label="닫기" variant="outline" onClick={onClose} className="mt-4 w-full border-gray-500 text-black hover:bg-gray-200 dark:border-gray-600 dark:text-lightGray dark:hover:bg-gray-700 md:px-4 md:py-2 px-2  md:text-md text-sm" /> */}
+        {/* 경유지, 목적지 */}
+        <div className="mt-4 flex space-x-4">
+          <Button label="경유지" variant="primary" onClick={() => onSelectWaypoint(company)} />
+          <Button label="목적지" variant="secondary" onClick={() => onSelectDestination(company)} />
+        </div>
       </div>
     </div>
   );

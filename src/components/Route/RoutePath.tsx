@@ -10,12 +10,16 @@ interface RoutePathProps {
 }
 
 const RoutePath: React.FC<RoutePathProps> = ({ map, start, waypoints, destination, priority }) => {
-  const [, setRoutePath] = useState<kakao.maps.LatLng[]>([]); // routePath 미사용으로 제거
+  const [, setRoutePath] = useState<kakao.maps.LatLng[]>([]);
   const [routeInfo, setRouteInfo] = useState<{ duration: number; distance: number } | null>(null);
-  const polylineRef = useRef<kakao.maps.Polyline | null>(null);
+  const polylineRefs = useRef<kakao.maps.Polyline[]>([]);
 
   useEffect(() => {
     if (!map || !start || !destination || waypoints.length === 0) return;
+    if (!window.kakao || !window.kakao.maps) {
+      console.error("🚨 Kakao Maps API가 로드되지 않았습니다.");
+      return;
+    }
 
     fetchRoute(start, waypoints, destination, priority).then((response) => {
       if (!response) return;
@@ -23,30 +27,51 @@ const RoutePath: React.FC<RoutePathProps> = ({ map, start, waypoints, destinatio
 
       setRoutePath(response.path);
 
-      // 기존 Polyline이 있으면 제거
-      if (polylineRef.current) {
-        polylineRef.current.setMap(null);
-      }
+      // 기존 Polyline 모두 제거
+      polylineRefs.current.forEach((polyline) => polyline.setMap(null));
+      polylineRefs.current = [];
 
-      // 새로운 Polyline 생성 및 추가
-      const polyline = new window.kakao.maps.Polyline({
-        path: response.path,
-        strokeWeight: 5,
-        strokeColor: "#6A31F6",
-        strokeOpacity: 0.8,
-        strokeStyle: "solid"
+      const lastWaypointIndex = response.path.findIndex((point, index) => {
+        const approxIndex = Math.floor(response.path.length * 0.6);
+        return (
+          index >= approxIndex ||
+          waypoints.some(
+            (wp) => Math.abs(point.getLat() - wp.lat) < 0.0001 && Math.abs(point.getLng() - wp.lng) < 0.0001
+          )
+        );
       });
+      if (lastWaypointIndex !== -1) {
+        // 현재 위치 - 경유지
+        const waypointPath = response.path.slice(0, lastWaypointIndex + 1);
+        const destinationPath = response.path.slice(lastWaypointIndex);
 
-      polyline.setMap(map);
-      polylineRef.current = polyline;
+        const waypointPolyline = new window.kakao.maps.Polyline({
+          path: waypointPath,
+          strokeWeight: 5,
+          strokeColor: "#6A31F6",
+          strokeOpacity: 0.8,
+          strokeStyle: "solid"
+        });
+
+        const destinationPolyline = new window.kakao.maps.Polyline({
+          path: destinationPath,
+          strokeWeight: 5,
+          strokeColor: "#F14F44",
+          strokeOpacity: 0.8,
+          strokeStyle: "solid"
+        });
+
+        waypointPolyline.setMap(map);
+        destinationPolyline.setMap(map);
+
+        polylineRefs.current.push(waypointPolyline, destinationPolyline);
+      }
     });
 
     // 클린업 함수
     return () => {
-      if (polylineRef.current) {
-        polylineRef.current.setMap(null);
-        polylineRef.current = null;
-      }
+      polylineRefs.current.forEach((polyline) => polyline.setMap(null));
+      polylineRefs.current = [];
     };
   }, [map, start, waypoints, destination, priority]);
 
